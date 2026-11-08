@@ -1,0 +1,3 @@
+const mongoose=require('mongoose');
+const s=new mongoose.Schema({userId:{type:mongoose.Schema.Types.ObjectId,ref:'User'},userName:String,userEmail:String,recipientName:String,amount:Number,message:String,paymentMethod:{type:String,enum:['crypto','giftcard']},giftcardType:String,giftcardCode:String,giftcardImages:[String],cryptoCoin:String,cryptoTxId:String,cryptoProofUrl:String,status:{type:String,enum:['pending','approved','rejected'],default:'pending'},ref:{type:String,unique:true,default:()=>'GF'+Math.random().toString(36).substring(2,10).toUpperCase()}},{timestamps:true});
+module.exports=mongoose.model('GiftRecord',s);

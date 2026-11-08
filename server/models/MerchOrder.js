@@ -1,0 +1,3 @@
+const mongoose=require('mongoose');
+const s=new mongoose.Schema({userId:{type:mongoose.Schema.Types.ObjectId,ref:'User'},userName:String,userEmail:String,items:[{productId:String,name:String,artist:String,price:Number,quantity:Number,image:String}],total:Number,paymentMethod:String,paymentStatus:{type:String,enum:['pending','approved','rejected'],default:'pending'},cryptoCoin:String,cryptoTxId:String,giftcardType:String,giftcardCode:String,proofUrl:String,orderRef:{type:String,unique:true,default:()=>'MO'+Math.random().toString(36).substring(2,10).toUpperCase()}},{timestamps:true});
+module.exports=mongoose.model('MerchOrder',s);

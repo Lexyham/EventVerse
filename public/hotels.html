@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="105+ hotels, villas, apartments and hostels near live events worldwide. Book your stay with EventVerse.">
+<title>Hotels & Stays — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏨</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:60px"><div class="container" style="padding-top:28px">
+  <div class="section-tag" style="margin-bottom:10px">🏨 Accommodation</div>
+  <h1 style="font-family:Poppins,sans-serif;font-size:clamp(24px,5vw,40px);font-weight:900;color:#fff;margin-bottom:6px">Hotels & <span class="gradient-text">Stays</span></h1>
+  <p style="color:#64748b;font-size:14px;margin-bottom:24px">105+ properties across 49+ cities · Hotels · Villas · Apartments · Hostels · Airbnbs</p>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+    <div style="position:relative;flex:1;min-width:200px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input id="hotel-search" class="ev-input" placeholder="Search hotels, cities..." style="padding-left:38px" oninput="renderHotels()"></div>
+    <select id="hotel-type" class="ev-input" style="width:auto;min-width:130px" onchange="renderHotels()"><option value="all">All Types</option><option value="hotel">Hotel</option><option value="villa">Villa</option><option value="apartment">Apartment</option><option value="hostel">Hostel</option><option value="airbnb">Airbnb</option></select>
+    <select id="hotel-sort" class="ev-input" style="width:auto;min-width:130px" onchange="renderHotels()"><option value="rating">Sort: Rating</option><option value="price-asc">Price: Low→High</option><option value="price-desc">Price: High→Low</option></select>
+  </div>
+  <p id="hotel-count" style="color:#64748b;font-size:13px;margin-bottom:16px"></p>
+  <div id="hotels-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px"></div>
+</div></main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+function renderHotels(){
+  const q=(document.getElementById('hotel-search').value||'').toLowerCase();
+  const type=document.getElementById('hotel-type').value;
+  const sort=document.getElementById('hotel-sort').value;
+  let all=[...hotels];
+  if(q) all=all.filter(h=>h.name.toLowerCase().includes(q)||h.city.toLowerCase().includes(q)||h.country.toLowerCase().includes(q));
+  if(type!=='all') all=all.filter(h=>h.type===type);
+  if(sort==='price-asc') all.sort((a,b)=>a.pricePerNight-b.pricePerNight);
+  else if(sort==='price-desc') all.sort((a,b)=>b.pricePerNight-a.pricePerNight);
+  else all.sort((a,b)=>(b.rating||0)-(a.rating||0));
+  document.getElementById('hotel-count').textContent=`${all.length} propert${all.length!==1?'ies':'y'} found`;
+  const typeEmoji={hotel:'🏨',villa:'🏡',apartment:'🏢',hostel:'🛏️',airbnb:'🏠'};
+  document.getElementById('hotels-grid').innerHTML=all.map(h=>`
+    <div class="ev-card" style="cursor:default">
+      <div style="position:relative;height:160px;overflow:hidden">
+        <img src="${h.image}" alt="${h.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,15,26,.7),transparent 50%)"></div>
+        <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);border-radius:8px;padding:3px 9px;font-size:11px;font-weight:600;color:#fff;text-transform:capitalize">${typeEmoji[h.type]||'🏨'} ${h.type}</div>
+        <div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.7);border-radius:8px;padding:4px 10px;font-size:13px;font-weight:900;color:#A78BFA">${currencySymbol(h.currency)}${h.pricePerNight.toLocaleString()}<span style="font-size:10px;font-weight:400;color:#64748b">/n</span></div>
+      </div>
+      <div style="padding:14px">
+        <h3 style="color:#fff;font-size:14px;font-weight:700;margin-bottom:4px;word-wrap:break-word">${h.name}</h3>
+        <p style="color:#64748b;font-size:12px;margin-bottom:6px;word-wrap:break-word">📍 ${h.city}, ${h.country} · 📏 ${h.distanceToVenue}km from venues</p>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">${(h.amenities||[]).slice(0,4).map(a=>`<span style="padding:2px 7px;background:rgba(255,255,255,.04);border-radius:5px;color:#64748b;font-size:10px">${a}</span>`).join('')}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:4px"><span style="color:#F59E0B;font-size:13px">★</span><span style="color:#F59E0B;font-size:13px;font-weight:700">${h.rating}</span><span style="color:#475569;font-size:11px">(${h.reviewCount?.toLocaleString()||0})</span></div>
+          <a href="events.html?q=${encodeURIComponent(h.city)}" class="btn btn-sm" style="background:rgba(108,43,217,.15);border:1px solid rgba(108,43,217,.3);color:#A78BFA;font-size:11px">Find Events Here</a>
+        </div>
+      </div>
+    </div>`).join('');
+}
+renderHotels();
+</script></body></html>

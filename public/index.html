@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="EventVerse — Book concerts, stadium matches, sports events, comedy shows & more. 200+ live events across 40+ countries with hotel add-ons and VIP packages.">
+<meta name="theme-color" content="#0F0F1A">
+<title>EventVerse — Live Event Ticketing Platform</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟️</text></svg>">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+<main>
+<section class="hero" id="hero-section" style="position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden">
+  <div class="hero-bg" id="hero-bg" style="position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity .8s ease"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,15,26,.4) 0%,rgba(15,15,26,.7) 50%,#0F0F1A 100%)"></div>
+  <div class="orb orb-purple" style="width:500px;height:500px;top:-100px;right:-100px"></div>
+  <div class="orb orb-pink" style="width:400px;height:400px;bottom:-50px;left:-100px"></div>
+  <div class="container" style="position:relative;z-index:5;padding-top:var(--header-h)">
+    <div style="max-width:700px">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);border-radius:20px;padding:5px 14px;margin-bottom:20px">
+        <span style="width:8px;height:8px;border-radius:50%;background:#EF4444;animation:ping 1.5s infinite;flex-shrink:0;display:inline-block"></span>
+        <span style="color:#FCA5A5;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px">LIVE Events</span>
+      </div>
+      <h1 class="animate-slide-up" style="font-family:Poppins,sans-serif;font-size:clamp(36px,6vw,72px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:16px">Experience Live<br><span class="gradient-text">History</span> Together</h1>
+      <p style="color:rgba(255,255,255,.75);font-size:clamp(15px,2vw,18px);line-height:1.65;max-width:520px;margin-bottom:28px" id="hero-subtitle">187+ events · 40+ countries · Hotels included</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
+        <a href="events.html" class="btn btn-primary btn-lg">🎟️ Browse Events</a>
+        <a href="stadium.html" class="btn btn-lg" style="background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#22C55E">⚽ Stadium Booking</a>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:32px" id="hero-stats">
+        <div style="background:rgba(0,0,0,.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 16px;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:900;color:#A78BFA;font-family:Poppins,sans-serif">187+</div><div style="font-size:11px;color:rgba(255,255,255,.6)">Live Events</div></div>
+        <div style="background:rgba(0,0,0,.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 16px;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:900;color:#EC4899;font-family:Poppins,sans-serif">40+</div><div style="font-size:11px;color:rgba(255,255,255,.6)">Countries</div></div>
+        <div style="background:rgba(0,0,0,.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 16px;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:900;color:#22C55E;font-family:Poppins,sans-serif">15</div><div style="font-size:11px;color:rgba(255,255,255,.6)">Stadiums</div></div>
+        <div style="background:rgba(0,0,0,.4);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px 16px;text-align:center;min-width:90px"><div style="font-size:20px;font-weight:900;color:#F59E0B;font-family:Poppins,sans-serif">105+</div><div style="font-size:11px;color:rgba(255,255,255,.6)">Hotels</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10" id="hero-dots"></div>
+</section>
+
+<div style="background:rgba(239,68,68,.08);border-top:1px solid rgba(239,68,68,.2);border-bottom:1px solid rgba(239,68,68,.2);overflow:hidden;padding:8px 0">
+  <div style="display:flex;align-items:center;gap:8px;padding:0 16px;overflow:hidden">
+    <span style="color:#EF4444;font-size:10px;font-weight:900;letter-spacing:1px;flex-shrink:0;background:rgba(239,68,68,.15);padding:2px 8px;border-radius:6px">🔴 LIVE</span>
+    <div style="overflow:hidden;flex:1"><div id="ticker-content"></div></div>
+  </div>
+</div>
+
+<section style="padding:24px 0 0">
+  <div class="container">
+    <div class="snap-scroll scrollbar-hide" role="navigation" aria-label="Event categories">
+      <a href="events.html?cat=concerts" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(108,43,217,.15);border:1px solid rgba(108,43,217,.3);border-radius:16px;min-width:80px"><span style="font-size:26px">🎵</span><span style="color:#E2E8F0;font-size:11px;font-weight:600;white-space:nowrap">Concerts</span></a>
+      <a href="events.html?cat=sports" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;min-width:80px"><span style="font-size:26px">⚽</span><span style="color:#94a3b8;font-size:11px;font-weight:600;white-space:nowrap">Sports</span></a>
+      <a href="events.html?cat=arts" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;min-width:80px"><span style="font-size:26px">🎭</span><span style="color:#94a3b8;font-size:11px;font-weight:600;white-space:nowrap">Arts</span></a>
+      <a href="events.html?cat=comedy" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;min-width:80px"><span style="font-size:26px">😂</span><span style="color:#94a3b8;font-size:11px;font-weight:600;white-space:nowrap">Comedy</span></a>
+      <a href="events.html?cat=family" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;min-width:80px"><span style="font-size:26px">👨‍👩‍👧</span><span style="color:#94a3b8;font-size:11px;font-weight:600;white-space:nowrap">Family</span></a>
+      <a href="vip.html" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:16px;min-width:80px"><span style="font-size:26px">👑</span><span style="color:#F59E0B;font-size:11px;font-weight:600;white-space:nowrap">VIP</span></a>
+      <a href="stadium.html" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;padding:14px 18px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:16px;min-width:80px"><span style="font-size:26px">🏟️</span><span style="color:#22C55E;font-size:11px;font-weight:600;white-space:nowrap">Stadium</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div><div class="section-tag" style="margin-bottom:8px">⭐ Featured</div><h2 style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,32px);font-weight:900;color:#fff">Featured <span class="gradient-text">Events</span></h2></div>
+      <a href="events.html" class="btn btn-outline btn-sm">View All →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px" id="featured-grid"></div>
+  </div>
+</section>
+
+<section style="padding:0 0 48px">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div><div class="section-tag" style="margin-bottom:8px">🔥 Trending</div><h2 style="font-family:Poppins,sans-serif;font-size:clamp(20px,3.5vw,28px);font-weight:900;color:#fff">Hot Right Now</h2></div>
+      <a href="events.html" class="btn btn-outline btn-sm">See All →</a>
+    </div>
+    <div class="snap-scroll scrollbar-hide" id="hot-events-scroll"></div>
+  </div>
+</section>
+
+<section class="section" style="background:rgba(34,197,94,.03);border-top:1px solid rgba(34,197,94,.08);border-bottom:1px solid rgba(34,197,94,.08)">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+      <div><div class="section-tag" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#22C55E;margin-bottom:8px">⚽ Stadium</div><h2 style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,32px);font-weight:900;color:#fff">Stadium <span style="color:#22C55E">Matches</span></h2><p style="color:#64748b;font-size:14px;margin-top:4px">World Cup · Premier League · Champions League · La Liga</p></div>
+      <a href="stadium.html" class="btn btn-sm" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff">View All Matches →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px" id="stadium-grid"></div>
+  </div>
+</section>
+
+<section style="padding:40px 0">
+  <div class="container">
+    <h3 style="color:#fff;font-size:16px;font-weight:700;margin-bottom:14px">🔎 Trending Searches</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px" id="trending-searches"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:28px"><div class="section-tag" style="margin:0 auto 10px;width:fit-content">📍 Cities</div><h2 style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,32px);font-weight:900;color:#fff">Popular <span class="gradient-text">Cities</span></h2></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" id="cities-grid"></div>
+  </div>
+</section>
+
+<section style="background:rgba(108,43,217,.06);border-top:1px solid rgba(108,43,217,.12);border-bottom:1px solid rgba(108,43,217,.12);padding:8px 0">
+  <div class="container"><div style="display:grid;grid-template-columns:repeat(4,1fr)">
+    <div style="text-align:center;padding:24px 16px"><div style="font-size:clamp(24px,4vw,40px);font-weight:900;background:linear-gradient(135deg,#6C2BD9,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:Poppins,sans-serif">187+</div><div style="color:#64748b;font-size:13px">Live Events</div></div>
+    <div style="text-align:center;padding:24px 16px;border-left:1px solid rgba(108,43,217,.15)"><div style="font-size:clamp(24px,4vw,40px);font-weight:900;background:linear-gradient(135deg,#6C2BD9,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:Poppins,sans-serif">40+</div><div style="color:#64748b;font-size:13px">Countries</div></div>
+    <div style="text-align:center;padding:24px 16px;border-left:1px solid rgba(108,43,217,.15)"><div style="font-size:clamp(24px,4vw,40px);font-weight:900;background:linear-gradient(135deg,#6C2BD9,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:Poppins,sans-serif">105+</div><div style="color:#64748b;font-size:13px">Hotels</div></div>
+    <div style="text-align:center;padding:24px 16px;border-left:1px solid rgba(108,43,217,.15)"><div style="font-size:clamp(24px,4vw,40px);font-weight:900;background:linear-gradient(135deg,#6C2BD9,#EC4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:Poppins,sans-serif">500K+</div><div style="color:#64748b;font-size:13px">Happy Fans</div></div>
+  </div></div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:28px"><div class="section-tag" style="margin:0 auto 10px;width:fit-content">💜 Reviews</div><h2 style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,32px);font-weight:900;color:#fff">What Fans <span class="gradient-text">Say</span></h2></div>
+    <div class="snap-scroll scrollbar-hide" id="testimonials-scroll"></div>
+  </div>
+</section>
+
+<section style="padding:56px 0">
+  <div class="container">
+    <div style="background:linear-gradient(135deg,rgba(108,43,217,.2),rgba(236,72,153,.15));border:1px solid rgba(108,43,217,.3);border-radius:24px;padding:clamp(28px,5vw,56px);text-align:center;position:relative;overflow:hidden">
+      <div class="orb orb-purple" style="width:300px;height:300px;top:-50px;left:-50px"></div>
+      <div class="orb orb-pink" style="width:200px;height:200px;bottom:-50px;right:-50px"></div>
+      <div style="position:relative;z-index:2">
+        <div class="section-tag" style="margin:0 auto 12px;width:fit-content">📧 Newsletter</div>
+        <h2 style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,36px);font-weight:900;color:#fff;margin-bottom:8px">Never Miss an Event</h2>
+        <p style="color:#94a3b8;font-size:15px;margin-bottom:24px">Get first access to tickets, exclusive deals, and event alerts.</p>
+        <form onsubmit="subscribeNewsletter(event)" style="display:flex;flex-wrap:wrap;gap:10px;max-width:440px;margin:0 auto">
+          <input id="newsletter-email" type="email" placeholder="Enter your email address" class="ev-input" style="flex:1;min-width:200px" required aria-label="Email for newsletter">
+          <button type="submit" class="btn btn-primary" style="flex-shrink:0;padding:11px 22px">Subscribe 🚀</button>
+        </form>
+        <p style="color:#475569;font-size:12px;margin-top:12px">No spam, unsubscribe any time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<div id="footer-placeholder"></div>
+
+<script src="js/ev-core-data.js"></script>
+<script src="js/ev-extra-data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/components.js"></script>
+<script>
+let heroIdx=0, heroTimer;
+function setHeroSlide(i){
+  heroIdx=(i+HERO_SLIDES.length)%HERO_SLIDES.length;
+  const s=HERO_SLIDES[heroIdx];
+  document.getElementById('hero-bg').style.backgroundImage=`url(${s.image})`;
+  document.getElementById('hero-subtitle').textContent=`${s.artist} · ${s.city}`;
+  document.querySelectorAll('.hero-dot').forEach((d,idx)=>d.classList.toggle('active',idx===heroIdx));
+}
+function initHero(){
+  const dots=document.getElementById('hero-dots');
+  HERO_SLIDES.forEach((_,i)=>{
+    const d=document.createElement('button');
+    d.className='hero-dot'+(i===0?' active':'');
+    d.style.cssText='width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;border:none;padding:0;transition:all .3s';
+    d.setAttribute('aria-label',`Slide ${i+1}`);
+    d.onclick=()=>{ clearInterval(heroTimer); setHeroSlide(i); heroTimer=setInterval(()=>setHeroSlide(heroIdx+1),5500); };
+    dots.appendChild(d);
+  });
+  document.querySelectorAll('.hero-dot').forEach(d=>d.addEventListener('transitionend',()=>{}));
+  const style=document.createElement('style'); style.textContent='.hero-dot.active{background:#6C2BD9;width:24px;border-radius:4px}'; document.head.appendChild(style);
+  setHeroSlide(0);
+  heroTimer=setInterval(()=>setHeroSlide(heroIdx+1),5500);
+}
+function initTicker(){
+  const items=events.slice(0,12).map(e=>`📍 <strong style="color:#E2E8F0">${e.artist}</strong> · ${e.city}, ${e.country} · ${fmtDateShort(new Date(e.date))}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`);
+  const t=document.getElementById('ticker-content');
+  t.innerHTML=items.join('')+items.join('');
+  t.style.cssText='display:flex;gap:0;white-space:nowrap;color:#94a3b8;font-size:12px;animation:ticker 60s linear infinite';
+}
+function mergedEvents(){
+  const s=window.EVStore?EVStore.getState():{};
+  const adminEvs=(s.adminEvents||[]).map(ae=>({id:ae.id,title:ae.title,artist:ae.artist||ae.title,category:ae.category,date:ae.date,image:ae.image||'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',price:{min:ae.price?.min||0,currency:ae.price?.currency||'USD'},rating:4.5,hot:ae.hot,featured:ae.featured,trending:ae.trending,city:ae.city,country:ae.country}));
+  return [...adminEvs,...events];
+}
+function initFeatured(){
+  const g=document.getElementById('featured-grid');
+  g.innerHTML=mergedEvents().filter(e=>e.featured).slice(0,9).map(e=>eventCardHTML(e)).join('');
+}
+function initHot(){
+  document.getElementById('hot-events-scroll').innerHTML=mergedEvents().filter(e=>e.hot).slice(0,8).map(e=>eventCardHTML(e,{size:'md'})).join('');
+}
+function initStadium(){
+  const s=window.EVStore?EVStore.getState():{};
+  const adminMatches=(s.adminMatches||[]).map(m=>({id:m.id,stadiumName:m.stadiumName,matchName:m.matchName,homeTeam:m.homeTeam,awayTeam:m.awayTeam,homeFlag:m.homeFlag||'⚽',awayFlag:m.awayFlag||'⚽',competition:m.competition||'',city:m.city,country:m.country,date:m.date,image:m.image||'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80',tickets:m.tickets,hot:m.hot}));
+  const allMatches=[...adminMatches,...staticMatches];
+  const featured=allMatches.filter(m=>m.hot||m.featured).slice(0,4);
+  document.getElementById('stadium-grid').innerHTML=featured.map(m=>`
+    <a href="stadium-detail.html?id=${m.id}" style="position:relative;border-radius:16px;overflow:hidden;text-decoration:none;display:block" class="ev-card">
+      <img src="${m.image}" alt="${m.matchName}" loading="lazy" style="width:100%;height:200px;object-fit:cover">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,15,26,.95) 0%,rgba(15,15,26,.4) 60%,transparent 100%);padding:16px;display:flex;flex-direction:column;justify-content:flex-end">
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px"><span style="color:#fff;font-size:20px">${m.homeFlag}</span><span style="background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#22C55E;padding:4px 10px;border-radius:8px;font-size:13px;font-weight:700">VS</span><span style="color:#fff;font-size:20px">${m.awayFlag}</span></div>
+        <h3 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:4px;text-align:center;word-wrap:break-word">${m.matchName}</h3>
+        <p style="color:#22C55E;font-size:11px;font-weight:600;text-align:center;margin-bottom:6px;word-wrap:break-word">${m.competition}</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#94a3b8"><span>📍 ${m.city}</span><span>📅 ${fmtDateShort(new Date(m.date))}</span><span style="color:#A78BFA;font-weight:700">${currencySymbol(m.tickets?.currency)}${m.tickets?.economy?.toLocaleString()}+</span></div>
+      </div>
+    </a>`).join('');
+}
+function initTrending(){
+  const terms=['Taylor Swift','World Cup 2026','Burna Boy','Beyoncé','Kevin Hart','El Clásico','Adele Vegas','Tyson Fury','Jungkook','Karol G','Morgan Wallen','Coachella'];
+  document.getElementById('trending-searches').innerHTML=terms.map(t=>`<a href="events.html?q=${encodeURIComponent(t)}" style="padding:7px 14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;color:#94a3b8;font-size:13px;text-decoration:none;white-space:nowrap">${t}</a>`).join('');
+}
+function initCities(){
+  document.getElementById('cities-grid').innerHTML=cities.map(c=>`
+    <a href="events.html?q=${encodeURIComponent(c.name)}" style="position:relative;border-radius:14px;overflow:hidden;text-decoration:none;display:block;aspect-ratio:1;background:#1A1A2E" class="ev-card">
+      <img src="${c.image}" alt="${c.name}" loading="lazy" style="width:100%;height:100%;object-fit:cover">
+      <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent 60%)"></div>
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:12px"><div style="color:#fff;font-size:13px;font-weight:700;word-wrap:break-word">${c.name}</div><div style="color:#A78BFA;font-size:11px">${c.count.toLocaleString()} events</div></div>
+    </a>`).join('');
+}
+function initTestimonials(){
+  document.getElementById('testimonials-scroll').innerHTML=testimonials.map(t=>`
+    <div style="background:#1A1A2E;border:1px solid rgba(108,43,217,.15);border-radius:16px;padding:20px;flex-shrink:0;width:300px;word-wrap:break-word">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6C2BD9,#EC4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px;flex-shrink:0">${t.name[0]}</div>
+        <div style="min-width:0"><div style="color:#fff;font-size:13px;font-weight:700;word-wrap:break-word">${t.name}</div><div style="color:#64748b;font-size:11px;word-wrap:break-word">${t.loc}</div></div>
+        <div style="margin-left:auto;flex-shrink:0"><span style="color:#F59E0B;font-size:13px">${'★'.repeat(t.rating)}</span></div>
+      </div>
+      <p style="color:#94a3b8;font-size:13px;line-height:1.6;word-wrap:break-word">"${t.text}"</p>
+      <p style="color:#475569;font-size:11px;margin-top:8px">${timeAgo(t.daysAgo)}</p>
+    </div>`).join('');
+}
+function subscribeNewsletter(e){
+  e.preventDefault();
+  const email=document.getElementById('newsletter-email').value;
+  if(email){ showToast('🎉 Subscribed! Watch for first-access event alerts.','success'); document.getElementById('newsletter-email').value=''; }
+  return false;
+}
+initHero(); initTicker(); initFeatured(); initHot(); initStadium(); initTrending(); initCities(); initTestimonials();
+window.addEventListener('ev-state-change', ()=>{ initFeatured(); initHot(); initStadium(); });
+</script>
+</body>
+</html>

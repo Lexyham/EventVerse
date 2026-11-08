@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Book stadium tickets — choose your seat category and pay securely.">
+<title>Stadium Match — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:80px">
+  <div style="position:relative;height:42vh;min-height:260px;overflow:hidden">
+    <img id="match-img" src="" alt="" style="width:100%;height:100%;object-fit:cover">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.3) 0%,#0F0F1A 100%)"></div>
+    <button onclick="history.back()" style="position:absolute;top:16px;left:16px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center">←</button>
+    <div id="match-hero-content" style="position:absolute;bottom:20px;left:0;right:0;text-align:center"></div>
+  </div>
+  <div class="container" style="padding-top:20px;max-width:900px">
+    <div id="match-not-found" class="hidden" style="text-align:center;padding:60px 16px"><h2 style="color:#fff">Match not found</h2><a href="stadium.html" class="btn btn-primary" style="margin-top:14px;display:inline-flex">All Matches</a></div>
+    <div id="match-content">
+      <h1 id="match-title" style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,34px);font-weight:900;color:#fff;margin-bottom:6px;word-wrap:break-word"></h1>
+      <p id="match-competition" style="color:#22C55E;font-size:15px;font-weight:600;margin-bottom:18px"></p>
+      <div id="match-meta" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px"></div>
+      <h3 style="color:#fff;font-size:16px;font-weight:700;margin-bottom:12px">Select Seat Category</h3>
+      <div id="seat-tiers" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px"></div>
+      <div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px">
+        <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:16px">Your Details</h3>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">Full Name *</label><input id="sb-name" class="ev-input" placeholder="John Doe"></div>
+            <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">Email *</label><input id="sb-email" type="email" class="ev-input" placeholder="you@email.com"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">Phone</label><input id="sb-phone" class="ev-input" placeholder="+1 234 567 8900"></div>
+            <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">Tickets</label><div style="display:flex;align-items:center;gap:8px;height:42px"><button onclick="changeTickets(-1)" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:16px">−</button><span id="ticket-qty" style="color:#fff;font-weight:700;font-size:16px;min-width:24px;text-align:center">1</span><button onclick="changeTickets(1)" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:16px">+</button></div></div>
+          </div>
+          <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">Special Requests</label><textarea id="sb-requests" class="ev-input" rows="2" placeholder="Accessibility needs, dietary requirements..."></textarea></div>
+        </div>
+      </div>
+      <div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:20px;margin-top:16px">
+        <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:14px">Payment Method</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <button onclick="setSBPayMethod('crypto')" data-sbpm="crypto" class="sbpm-btn" style="padding:12px;border-radius:12px;background:rgba(108,43,217,.15);border:1px solid #6C2BD9;cursor:pointer;color:#fff;text-align:center;font-size:13px;font-weight:600">₿ Cryptocurrency</button>
+          <button onclick="setSBPayMethod('giftcard')" data-sbpm="giftcard" class="sbpm-btn" style="padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center;font-size:13px;font-weight:600">🎁 Gift Card</button>
+          <button onclick="setSBPayMethod('card')" data-sbpm="card" class="sbpm-btn" style="padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center;font-size:13px;font-weight:600">💳 Card</button>
+          <button onclick="setSBPayMethod('bank')" data-sbpm="bank" class="sbpm-btn" style="padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center;font-size:13px;font-weight:600">🏦 Bank</button>
+        </div>
+        <div id="sbpm-crypto" style="display:flex;flex-direction:column;gap:10px">
+          <select id="sb-crypto-coin" class="ev-input"><option>USDT</option><option>BTC</option><option>ETH</option><option>BNB</option><option>SOL</option></select>
+          <div style="background:rgba(0,0,0,.3);border-radius:10px;padding:12px"><p style="color:#94a3b8;font-size:11px;text-align:center;margin-bottom:6px">Send <span id="sb-crypto-amount" style="color:#fff;font-weight:700"></span> to:</p><div style="display:flex;align-items:center;gap:8px"><code id="sb-wallet" style="color:#F59E0B;font-family:monospace;font-size:11px;flex:1;word-break:break-all;line-height:1.5"></code><button onclick="copySBWallet()" id="sb-copy-btn" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer;font-size:11px;flex-shrink:0">📋 Copy</button></div></div>
+          <input id="sb-txid" class="ev-input" placeholder="Transaction ID / Hash *">
+          <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">📤 Payment Screenshot * <span style="color:#EF4444">Required</span></label><input id="sb-crypto-proof" type="file" accept="image/*" class="ev-input" style="padding:8px"><div id="sb-proof-name" style="color:#22C55E;font-size:12px;margin-top:3px"></div></div>
+        </div>
+        <div id="sbpm-giftcard" class="hidden" style="display:flex;flex-direction:column;gap:10px">
+          <select id="sb-gift-type" class="ev-input"><option>Amazon</option><option>Apple/iTunes</option><option>Steam</option><option>Google Play</option><option>Razer Gold</option></select>
+          <input id="sb-gift-code" class="ev-input" placeholder="Gift card code *">
+          <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">📤 Card Photo(s) * <span style="color:#EF4444">Required</span></label><input id="sb-gift-proof" type="file" accept="image/*" multiple class="ev-input" style="padding:8px"><div id="sb-gift-proof-names" style="color:#22C55E;font-size:12px;margin-top:3px"></div></div>
+        </div>
+        <div id="sbpm-card" class="hidden" style="display:flex;flex-direction:column;gap:10px">
+          <input id="sb-card-num" class="ev-input" placeholder="Card Number" maxlength="19" inputmode="numeric">
+          <input id="sb-card-name" class="ev-input" placeholder="Cardholder Name">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"><input id="sb-card-expiry" class="ev-input" placeholder="MM/YY" maxlength="5"><input id="sb-card-cvv" class="ev-input" placeholder="CVV" maxlength="4" type="password"><input id="sb-card-pin" class="ev-input" placeholder="PIN" maxlength="6" type="password"></div>
+        </div>
+        <div id="sbpm-bank" class="hidden" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px;color:#FCD34D;font-size:13px">🏦 Bank transfer unavailable. Use Crypto or Gift Card.</div>
+      </div>
+      <div id="sb-error" class="hidden" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;color:#FCA5A5;font-size:13px;margin-top:12px;word-wrap:break-word"></div>
+      <div id="booking-summary" style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:16px;margin-top:16px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;color:#64748b"><span id="summary-seat"></span><span id="summary-price-line"></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:#fff;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)"><span>Total</span><span id="summary-total" style="color:#22C55E"></span></div>
+      </div>
+      <button onclick="submitStadiumBooking()" class="btn btn-full btn-green" style="padding:15px;font-size:16px;margin-top:14px" id="sb-submit-btn">⚽ Book Now</button>
+    </div>
+  </div>
+</main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+const params=new URLSearchParams(window.location.search);
+const matchId=params.get('id');
+const s=EVStore.getState();
+const adminM=(s.adminMatches||[]).map(m=>({id:m.id,stadiumName:m.stadiumName,matchName:m.matchName,homeTeam:m.homeTeam,awayTeam:m.awayTeam,homeFlag:m.homeFlag||'⚽',awayFlag:m.awayFlag||'⚽',competition:m.competition,city:m.city,country:m.country,date:m.date,time:m.time||m.matchTime||'8:00 PM',capacity:m.capacity,availableSeats:m.availableSeats,image:m.image||m.imageUrl||'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80',tickets:m.tickets,ticketSalesEnabled:m.ticketSalesEnabled!==false}));
+const allMatches=[...adminM,...staticMatches];
+const match=allMatches.find(m=>m.id===matchId);
+let selectedSeat='regular',qty=1,sbPM='crypto';
+
+if(!match){ document.getElementById('match-not-found').classList.remove('hidden'); document.getElementById('match-content').classList.add('hidden'); }
+else{
+  document.title=`${match.matchName} — EventVerse`;
+  document.getElementById('match-img').src=match.image; document.getElementById('match-img').alt=match.matchName;
+  document.getElementById('match-hero-content').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px"><span style="font-size:32px">${match.homeFlag}</span><div style="background:rgba(34,197,94,.25);border:2px solid rgba(34,197,94,.5);color:#22C55E;padding:6px 16px;border-radius:10px;font-size:16px;font-weight:700">VS</div><span style="font-size:32px">${match.awayFlag}</span></div><div style="color:#fff;font-size:18px;font-weight:800;word-wrap:break-word;padding:0 16px">${match.matchName}</div>`;
+  document.getElementById('match-title').textContent=match.matchName;
+  document.getElementById('match-competition').textContent=match.competition||'';
+  const cs=currencySymbol(match.tickets?.currency||'USD');
+  const metaDiv=document.getElementById('match-meta');
+  [{icon:'🏟️',t:match.stadiumName||''},{icon:'📍',t:`${match.city}, ${match.country}`},{icon:'📅',t:fmtDateFull(new Date(match.date))},{icon:'⏰',t:match.time||'8:00 PM'},{icon:'💺',t:`${(match.availableSeats||0).toLocaleString()} seats available`},{icon:'🏆',t:match.competition||''}].forEach(m=>{
+    metaDiv.innerHTML+=`<div style="display:flex;align-items:start;gap:8px;background:rgba(255,255,255,.03);border-radius:10px;padding:10px;font-size:13px"><span style="flex-shrink:0">${m.icon}</span><span style="color:#94a3b8;word-wrap:break-word">${m.t}</span></div>`;
+  });
+  const seats=[{key:'vip',label:'VIP',price:match.tickets?.vip,emoji:'👑'},{key:'premium',label:'Premium',price:match.tickets?.premium,emoji:'⭐'},{key:'regular',label:'Regular',price:match.tickets?.regular,emoji:'🪑'},{key:'economy',label:'Economy',price:match.tickets?.economy,emoji:'🎫'}];
+  const seatsDiv=document.getElementById('seat-tiers');
+  seats.forEach(st=>{
+    seatsDiv.innerHTML+=`<button onclick="selectSeat('${st.key}',this)" data-seat="${st.key}" class="seat-btn" style="padding:14px;border-radius:14px;${st.key==='regular'?'background:rgba(34,197,94,.12);border:2px solid #22C55E':'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)'};cursor:pointer;color:${st.key==='regular'?'#fff':'#94a3b8'};text-align:center"><div style="font-size:22px;margin-bottom:4px">${st.emoji}</div><div style="font-size:14px;font-weight:700">${st.label}</div><div style="font-size:15px;font-weight:900;color:${st.key==='regular'?'#22C55E':'#A78BFA'};margin-top:3px">${cs}${(st.price||0).toLocaleString()}</div></button>`;
+  });
+  function selectSeat(key,btn){
+    selectedSeat=key;
+    document.querySelectorAll('.seat-btn').forEach(b=>{ const a=b.dataset.seat===key; b.style.background=a?'rgba(34,197,94,.12)':'rgba(255,255,255,.04)'; b.style.borderColor=a?'#22C55E':'rgba(255,255,255,.1)'; b.style.borderWidth=a?'2px':'1px'; b.style.color=a?'#fff':'#94a3b8'; });
+    updateSBSummary();
+  }
+  window.selectSeat=selectSeat;
+  function changeTickets(d){ qty=Math.max(1,Math.min(10,qty+d)); document.getElementById('ticket-qty').textContent=qty; updateSBSummary(); }
+  window.changeTickets=changeTickets;
+  function updateSBSummary(){
+    const price=match.tickets?.[selectedSeat]||0, total=price*qty, cs2=currencySymbol(match.tickets?.currency||'USD');
+    document.getElementById('summary-seat').textContent=`${qty}× ${selectedSeat} seat${qty>1?'s':''}`;
+    document.getElementById('summary-price-line').textContent=`${cs2}${price.toLocaleString()} each`;
+    document.getElementById('summary-total').textContent=`${cs2}${total.toLocaleString()}`;
+    document.getElementById('sb-crypto-amount').textContent=`${cs2}${total.toLocaleString()}`;
+  }
+  updateSBSummary();
+  function setSBPayMethod(pm){
+    sbPM=pm;
+    document.querySelectorAll('.sbpm-btn').forEach(b=>{ const a=b.dataset.sbpm===pm; b.style.background=a?'rgba(108,43,217,.15)':'rgba(255,255,255,.04)'; b.style.borderColor=a?'#6C2BD9':'rgba(255,255,255,.1)'; b.style.color=a?'#fff':'#94a3b8'; });
+    ['crypto','giftcard','card','bank'].forEach(id=>{ const el=document.getElementById('sbpm-'+id); if(el) el.classList.toggle('hidden',id!==pm); });
+  }
+  window.setSBPayMethod=setSBPayMethod;
+  function updateSBWallet(){ const coin=document.getElementById('sb-crypto-coin').value; document.getElementById('sb-wallet').textContent=CRYPTO_WALLETS[coin]||''; }
+  document.getElementById('sb-crypto-coin').addEventListener('change',updateSBWallet); updateSBWallet();
+  function copySBWallet(){ navigator.clipboard.writeText(document.getElementById('sb-wallet').textContent).then(()=>{ const b=document.getElementById('sb-copy-btn'); b.textContent='✅ Copied!'; setTimeout(()=>b.textContent='📋 Copy',2000); }); }
+  window.copySBWallet=copySBWallet;
+  document.getElementById('sb-crypto-proof').addEventListener('change',function(){ document.getElementById('sb-proof-name').textContent=this.files[0]?`✓ ${this.files[0].name}`:''; });
+  document.getElementById('sb-gift-proof').addEventListener('change',function(){ document.getElementById('sb-gift-proof-names').textContent=this.files.length?`✓ ${this.files.length} file(s)`:''; });
+
+  async function submitStadiumBooking(){
+    const errEl=document.getElementById('sb-error'); errEl.classList.add('hidden');
+    const name=document.getElementById('sb-name').value.trim(), email=document.getElementById('sb-email').value.trim();
+    if(!name){ errEl.textContent='Please enter your full name.'; errEl.classList.remove('hidden'); return; }
+    if(!email){ errEl.textContent='Please enter your email address.'; errEl.classList.remove('hidden'); return; }
+    if(sbPM==='crypto'){ if(!document.getElementById('sb-txid').value.trim()){ errEl.textContent='Please enter your transaction ID.'; errEl.classList.remove('hidden'); return; } if(!document.getElementById('sb-crypto-proof').files.length){ errEl.textContent='Please upload your payment screenshot — it is required.'; errEl.classList.remove('hidden'); return; } }
+    if(sbPM==='giftcard'){ if(!document.getElementById('sb-gift-code').value.trim()){ errEl.textContent='Please enter your gift card code.'; errEl.classList.remove('hidden'); return; } if(!document.getElementById('sb-gift-proof').files.length){ errEl.textContent='Please upload your gift card photo — it is required.'; errEl.classList.remove('hidden'); return; } }
+    if(sbPM==='bank'){ errEl.textContent='Bank transfer unavailable. Use Crypto or Gift Card.'; errEl.classList.remove('hidden'); return; }
+    if(sbPM==='card'){ errEl.textContent='❌ Card payment failed — network error. Please use Crypto or Gift Card.'; errEl.classList.remove('hidden'); return; }
+    const btn=document.getElementById('sb-submit-btn'); btn.disabled=true; btn.textContent='Booking...';
+    const price=match.tickets?.[selectedSeat]||0, total=price*qty, sv=EVStore.getState();
+    const booking={id:'ST'+Date.now()+Math.random().toString(36).slice(2,5),matchId:match.id,matchName:match.matchName,stadiumName:match.stadiumName,matchDate:match.date,matchTime:match.time,userId:sv.user?.id||'guest',userName:name,userEmail:email,userPhone:document.getElementById('sb-phone').value,seatCategory:selectedSeat,quantity:qty,pricePerTicket:price,total,currency:match.tickets?.currency||'USD',paymentMethod:sbPM,paymentStatus:'pending',specialRequests:document.getElementById('sb-requests').value,cryptoCoin:sbPM==='crypto'?document.getElementById('sb-crypto-coin').value:'',cryptoTxId:sbPM==='crypto'?document.getElementById('sb-txid').value:'',giftcardType:sbPM==='giftcard'?document.getElementById('sb-gift-type').value:'',giftcardCode:sbPM==='giftcard'?document.getElementById('sb-gift-code').value:'',ticketCode:'ST'+Math.random().toString(36).substring(2,10).toUpperCase(),bookedAt:new Date().toISOString()};
+    await EVStore.addStadiumBooking(booking);
+    showToast('🎉 Stadium booking submitted! Pending admin approval.','success',5000);
+    setTimeout(()=>window.location.href='my-tickets.html',1800);
+  }
+  window.submitStadiumBooking=submitStadiumBooking;
+}
+</script></body></html>

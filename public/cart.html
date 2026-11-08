@@ -1,0 +1,205 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Review your cart and checkout securely with crypto or gift card payment.">
+<title>Cart & Checkout — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟️</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:80px">
+<div class="container" style="padding-top:24px;max-width:900px">
+  <h1 id="page-heading" style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,34px);font-weight:900;color:#fff;margin-bottom:24px">🛒 Your Cart</h1>
+  <div id="step-cart">
+    <div id="cart-empty" class="hidden" style="text-align:center;padding:60px 16px"><div style="font-size:56px;margin-bottom:14px">🛒</div><h2 style="color:#fff;font-size:22px;font-weight:700;margin-bottom:8px">Your cart is empty</h2><p style="color:#64748b;margin-bottom:22px">Discover amazing events and start booking!</p><a href="events.html" class="btn btn-primary btn-lg">Browse Events</a></div>
+    <div id="cart-content" style="display:grid;grid-template-columns:1fr;gap:20px">
+      <div id="cart-items" style="display:flex;flex-direction:column;gap:12px"></div>
+      <div>
+        <div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px;margin-bottom:16px">
+          <h3 style="color:#fff;font-size:14px;font-weight:700;margin-bottom:10px">🏷️ Promo Code</h3>
+          <div style="display:flex;gap:8px"><input id="promo-input" class="ev-input" placeholder="Enter promo code" style="text-transform:uppercase" maxlength="20"><button onclick="applyPromo()" class="btn btn-primary btn-sm" style="flex-shrink:0;padding:10px 18px">Apply</button></div>
+          <div id="promo-msg" style="font-size:12px;margin-top:6px;word-wrap:break-word"></div>
+        </div>
+        <div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px">
+          <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:14px">Order Summary</h3>
+          <div id="order-summary" style="display:flex;flex-direction:column;gap:8px;font-size:14px"></div>
+          <button onclick="goToPayment()" class="btn btn-primary btn-full" style="padding:14px;font-size:15px;margin-top:16px">Proceed to Payment →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="step-payment" class="hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <button onclick="showStep('cart')" style="background:none;border:none;color:#A78BFA;cursor:pointer;font-size:14px">← Back to Cart</button>
+      <div style="color:#fff;font-size:18px;font-weight:700">Total: <span id="pay-total" style="color:#A78BFA"></span></div>
+    </div>
+    <div id="pay-error" class="hidden" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:12px;padding:12px 16px;color:#FCA5A5;font-size:13px;margin-bottom:16px;word-wrap:break-word"></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px" id="pay-methods">
+      <button onclick="setPayMethod('crypto')" data-pm="crypto" class="pm-btn" style="padding:14px 10px;border-radius:14px;background:rgba(108,43,217,.15);border:1px solid #6C2BD9;cursor:pointer;color:#fff;text-align:center"><div style="font-size:22px">₿</div><div style="font-size:13px;font-weight:600;margin-top:4px">Cryptocurrency</div><div style="font-size:11px;color:#94a3b8">BTC, ETH, USDT, BNB, SOL</div></button>
+      <button onclick="setPayMethod('giftcard')" data-pm="giftcard" class="pm-btn" style="padding:14px 10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center"><div style="font-size:22px">🎁</div><div style="font-size:13px;font-weight:600;margin-top:4px">Gift Card</div><div style="font-size:11px;color:#64748b">Amazon, Apple, Steam...</div></button>
+      <button onclick="setPayMethod('card')" data-pm="card" class="pm-btn" style="padding:14px 10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center"><div style="font-size:22px">💳</div><div style="font-size:13px;font-weight:600;margin-top:4px">Card Payment</div><div style="font-size:11px;color:#64748b">Visa, Mastercard</div></button>
+      <button onclick="setPayMethod('bank')" data-pm="bank" class="pm-btn" style="padding:14px 10px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center"><div style="font-size:22px">🏦</div><div style="font-size:13px;font-weight:600;margin-top:4px">Bank Transfer</div><div style="font-size:11px;color:#64748b">Wire transfer</div></button>
+    </div>
+    <div id="pm-crypto" style="background:#1A1A2E;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <h3 style="color:#fff;font-size:15px;font-weight:700">₿ Cryptocurrency Payment</h3>
+      <select id="crypto-coin" class="ev-input" aria-label="Select cryptocurrency"><option value="BTC">Bitcoin (BTC)</option><option value="ETH">Ethereum (ETH)</option><option value="USDT" selected>Tether (USDT)</option><option value="BNB">BNB (BNB)</option><option value="SOL">Solana (SOL)</option></select>
+      <div style="background:rgba(0,0,0,.4);border-radius:12px;padding:14px">
+        <p style="color:#94a3b8;font-size:12px;margin-bottom:8px;text-align:center">Send <span id="crypto-amount" style="color:#fff;font-weight:700"></span> in <span id="crypto-coin-name">USDT</span> to:</p>
+        <div style="display:flex;align-items:center;gap:10px"><code id="wallet-addr" style="color:#F59E0B;font-family:monospace;font-size:12px;flex:1;word-break:break-all;line-height:1.5"></code><button onclick="copyWallet()" id="copy-btn" style="flex-shrink:0;background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:7px 12px;color:#fff;cursor:pointer;font-size:12px">📋 Copy</button></div>
+      </div>
+      <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:6px">Transaction ID / Hash *</label><input id="crypto-txid" class="ev-input" placeholder="Enter transaction hash after sending..."></div>
+      <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:6px">📤 Upload Payment Screenshot <span style="color:#EF4444">* Required</span></label><input id="crypto-proof" type="file" accept="image/*" class="ev-input" style="padding:8px"><div id="crypto-proof-name" style="color:#22C55E;font-size:12px;margin-top:4px"></div></div>
+    </div>
+    <div id="pm-giftcard" class="hidden" style="background:#1A1A2E;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <h3 style="color:#fff;font-size:15px;font-weight:700">🎁 Gift Card Payment</h3>
+      <select id="gift-type" class="ev-input"><option>Amazon</option><option>Apple/iTunes</option><option>Steam</option><option>Google Play</option><option>Razer Gold</option></select>
+      <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:6px">Gift Card Code *</label><input id="gift-code" class="ev-input" placeholder="Enter gift card code"></div>
+      <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:6px">📤 Upload Card Photo * <span style="color:#EF4444">Required</span></label><input id="gift-proof" type="file" accept="image/*" multiple class="ev-input" style="padding:8px"><div id="gift-proof-names" style="color:#22C55E;font-size:12px;margin-top:4px"></div></div>
+    </div>
+    <div id="pm-card" class="hidden" style="background:#1A1A2E;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <h3 style="color:#fff;font-size:15px;font-weight:700">💳 Card Details</h3>
+      <input id="card-number" class="ev-input" placeholder="Card Number (16 digits)" maxlength="19" inputmode="numeric">
+      <input id="card-name" class="ev-input" placeholder="Cardholder Name">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><input id="card-expiry" class="ev-input" placeholder="MM/YY" maxlength="5"><input id="card-cvv" class="ev-input" placeholder="CVV" maxlength="4" type="password"><input id="card-pin" class="ev-input" placeholder="PIN" maxlength="6" type="password"></div>
+    </div>
+    <div id="pm-bank" class="hidden" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:14px;padding:16px;color:#FCD34D;font-size:14px">🏦 No bank accounts available due to network maintenance. Please use Crypto or Gift Card.</div>
+    <button onclick="submitPayment()" class="btn btn-primary btn-full" style="padding:15px;font-size:16px;margin-top:16px" id="pay-btn"><span id="pay-btn-text">Pay <span id="pay-btn-amount"></span></span></button>
+  </div>
+  <div id="step-processing" class="hidden" style="text-align:center;padding:80px 16px"><div class="spinner spinner-lg" style="margin:0 auto 20px"></div><h2 style="color:#fff;font-size:22px;font-weight:700;margin-bottom:8px" id="processing-msg">Verifying payment...</h2><p style="color:#64748b">Please don't close this page...</p></div>
+  <div id="step-done" class="hidden" style="text-align:center;padding:60px 16px;max-width:480px;margin:0 auto">
+    <div style="width:80px;height:80px;border-radius:50%;background:rgba(34,197,94,.12);border:2px solid #22C55E;display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 20px">✅</div>
+    <h2 style="color:#fff;font-size:28px;font-weight:900;font-family:Poppins,sans-serif;margin-bottom:8px">Order Submitted! 🎉</h2>
+    <p style="color:#94a3b8;margin-bottom:8px">Your booking is <strong>pending admin approval</strong>. You'll receive a notification when confirmed.</p>
+    <p style="color:#64748b;font-size:13px;margin-bottom:28px">Check My Tickets to download your ticket once approved.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><a href="my-tickets.html" class="btn btn-primary">🎟️ View My Tickets</a><a href="index.html" class="btn btn-outline">← Back to Home</a></div>
+  </div>
+</div>
+</main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+let currentPM='crypto', appliedPromo=null;
+function showStep(s){ ['cart','payment','processing','done'].forEach(id=>document.getElementById('step-'+id).classList.add('hidden')); document.getElementById('step-'+s).classList.remove('hidden'); document.getElementById('page-heading').textContent=s==='cart'?'🛒 Your Cart':s==='payment'?'💳 Payment':s==='processing'?'⏳ Processing...':'✅ Order Placed!'; }
+
+function renderCart(){
+  const s=EVStore.getState();
+  const hasItems=s.cart.length||s.merchCart.length;
+  if(!hasItems){ document.getElementById('cart-empty').classList.remove('hidden'); document.getElementById('cart-content').style.display='none'; return; }
+  document.getElementById('cart-empty').classList.add('hidden'); document.getElementById('cart-content').style.display='grid';
+  const cartDiv=document.getElementById('cart-items');
+  cartDiv.innerHTML=[...s.cart.map(item=>{
+    const cs=currencySymbol(item.event?.price?.currency||'USD');
+    return `<div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px;display:flex;gap:12px">
+      <img src="${item.event?.image||''}" alt="${item.event?.title||''}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;flex-shrink:0">
+      <div style="flex:1;min-width:0">
+        <h4 style="color:#fff;font-size:14px;font-weight:700;word-wrap:break-word;margin-bottom:3px">${item.event?.title||''}</h4>
+        <p style="color:#64748b;font-size:12px;word-wrap:break-word">${item.event?.venue||''} · ${item.event?.city||''}</p>
+        <p style="color:#64748b;font-size:12px">${fmtDateShort(new Date(item.event?.date||Date.now()))} · ${item.ticketType}</p>
+        ${item.event?.hotelName?`<p style="color:#A78BFA;font-size:11px;margin-top:3px">🏨 +${item.event.hotelName} (${item.event.hotelNights} nights)</p>`:''}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:8px"><button onclick="EVStore.updateCartQty('${item.id}',${item.quantity-1});renderCart()" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:14px">−</button><span style="color:#fff;font-size:13px;font-weight:700">${item.quantity}</span><button onclick="EVStore.updateCartQty('${item.id}',${item.quantity+1});renderCart()" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:14px">+</button></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="color:#A78BFA;font-weight:700;font-size:14px">${cs}${(item.price*item.quantity).toLocaleString()}</span><button onclick="EVStore.removeFromCart('${item.id}');renderCart()" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:16px;padding:4px 8px">🗑️</button></div>
+        </div>
+      </div>
+    </div>`;
+  }),...s.merchCart.map(item=>`
+    <div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px;display:flex;gap:12px">
+      <img src="${item.image||''}" alt="${item.name||''}" style="width:70px;height:70px;border-radius:10px;object-fit:cover;flex-shrink:0">
+      <div style="flex:1;min-width:0">
+        <div style="display:inline-block;padding:2px 8px;background:rgba(236,72,153,.1);border-radius:5px;color:#F9A8D4;font-size:10px;font-weight:600;margin-bottom:4px">🛍️ MERCH</div>
+        <h4 style="color:#fff;font-size:14px;font-weight:700;word-wrap:break-word">${item.name||''}</h4>
+        <p style="color:#A78BFA;font-size:12px;word-wrap:break-word">${item.artist||''}</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:8px"><button onclick="EVStore.updateMerchQty('${item.id}',${item.quantity-1});renderCart()" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:14px">−</button><span style="color:#fff;font-size:13px;font-weight:700">${item.quantity}</span><button onclick="EVStore.updateMerchQty('${item.id}',${item.quantity+1});renderCart()" style="width:26px;height:26px;border-radius:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:14px">+</button></div>
+          <div style="display:flex;align-items:center;gap:10px"><span style="color:#EC4899;font-weight:700;font-size:14px">$${(item.price*item.quantity).toLocaleString()}</span><button onclick="EVStore.removeFromMerchCart('${item.id}');renderCart()" style="background:none;border:none;color:#EF4444;cursor:pointer;font-size:16px;padding:4px 8px">🗑️</button></div>
+        </div>
+      </div>
+    </div>`)].join('');
+  updateSummary();
+}
+
+function updateSummary(){
+  const subtotal=EVStore.getCartTotal()+EVStore.getMerchTotal();
+  const discount=appliedPromo?Math.round(subtotal*appliedPromo.discount/100):0;
+  const after=subtotal-discount, fee=Math.round(after*0.05), total=after+fee;
+  const div=document.getElementById('order-summary');
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;color:#64748b"><span>Subtotal</span><span>$${subtotal.toLocaleString()}</span></div>`;
+  if(discount>0) div.innerHTML+=`<div style="display:flex;justify-content:space-between;color:#22C55E"><span>Discount (${appliedPromo.discount}%)</span><span>-$${discount.toLocaleString()}</span></div>`;
+  div.innerHTML+=`<div style="display:flex;justify-content:space-between;color:#64748b"><span>Service fee (5%)</span><span>$${fee.toLocaleString()}</span></div>`;
+  div.innerHTML+=`<div style="display:flex;justify-content:space-between;color:#fff;font-weight:700;font-size:16px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"><span>Total</span><span style="color:#A78BFA">$${total.toLocaleString()}</span></div>`;
+  document.getElementById('pay-total').textContent=`$${total.toLocaleString()}`;
+  document.getElementById('pay-btn-amount').textContent=`$${total.toLocaleString()}`;
+  document.getElementById('crypto-amount').textContent=`$${total.toLocaleString()}`;
+}
+
+async function applyPromo(){
+  const code=document.getElementById('promo-input').value.trim(); if(!code) return;
+  const msg=document.getElementById('promo-msg');
+  const result=await EVStore.validatePromoCode(code);
+  if(result){ appliedPromo=result; msg.style.color='#22C55E'; msg.textContent=`✅ ${result.code} applied — ${result.discount}% off!`; }
+  else{ appliedPromo=null; msg.style.color='#EF4444'; msg.textContent='❌ Invalid or expired promo code'; }
+  updateSummary();
+}
+
+function goToPayment(){
+  const s=EVStore.getState();
+  if(!s.isAuthenticated){ window.location.href='login.html?redirect=cart.html'; return; }
+  if(!s.cart.length&&!s.merchCart.length) return;
+  showStep('payment'); updateWalletDisplay();
+}
+
+function setPayMethod(pm){
+  currentPM=pm;
+  document.querySelectorAll('.pm-btn').forEach(b=>{ const a=b.dataset.pm===pm; b.style.background=a?'rgba(108,43,217,.15)':'rgba(255,255,255,.04)'; b.style.borderColor=a?'#6C2BD9':'rgba(255,255,255,.1)'; b.style.color=a?'#fff':'#94a3b8'; });
+  ['crypto','giftcard','card','bank'].forEach(id=>{ const el=document.getElementById('pm-'+id); if(el) el.classList.toggle('hidden',id!==pm); });
+  document.getElementById('pay-error').classList.add('hidden');
+}
+setPayMethod('crypto');
+
+function updateWalletDisplay(){ const coin=document.getElementById('crypto-coin').value; document.getElementById('wallet-addr').textContent=CRYPTO_WALLETS[coin]||''; document.getElementById('crypto-coin-name').textContent=coin; }
+document.getElementById('crypto-coin').addEventListener('change',updateWalletDisplay);
+function copyWallet(){ navigator.clipboard.writeText(document.getElementById('wallet-addr').textContent).then(()=>{ const btn=document.getElementById('copy-btn'); btn.textContent='✅ Copied!'; btn.style.background='rgba(34,197,94,.2)'; setTimeout(()=>{ btn.textContent='📋 Copy'; btn.style.background='rgba(255,255,255,.1)'; },2000); }).catch(()=>showToast('Copy failed — please copy manually','error')); }
+window.copyWallet=copyWallet;
+
+document.getElementById('crypto-proof').addEventListener('change',function(){ document.getElementById('crypto-proof-name').textContent=this.files[0]?`✓ ${this.files[0].name}`:''; });
+document.getElementById('gift-proof').addEventListener('change',function(){ document.getElementById('gift-proof-names').textContent=this.files.length?`✓ ${this.files.length} file(s) selected`:''; });
+
+function showPayError(msg){ const el=document.getElementById('pay-error'); el.textContent='⚠️ '+msg; el.classList.remove('hidden'); }
+
+async function submitPayment(){
+  document.getElementById('pay-error').classList.add('hidden');
+  if(currentPM==='bank'){ showPayError('Bank transfer unavailable. Please use Crypto or Gift Card.'); return; }
+  if(currentPM==='crypto'){
+    if(!document.getElementById('crypto-txid').value.trim()){ showPayError('Please enter your transaction ID.'); return; }
+    if(!document.getElementById('crypto-proof').files.length){ showPayError('Please upload your payment screenshot — it is required.'); return; }
+  }
+  if(currentPM==='giftcard'){
+    if(!document.getElementById('gift-code').value.trim()){ showPayError('Please enter your gift card code.'); return; }
+    if(!document.getElementById('gift-proof').files.length){ showPayError('Please upload your gift card photo — it is required.'); return; }
+  }
+  const btn=document.getElementById('pay-btn'); btn.disabled=true;
+  const s=EVStore.getState();
+
+  if(currentPM==='card'){
+    showStep('processing'); document.getElementById('processing-msg').textContent='Processing payment...';
+    const booking={id:'BK'+Date.now()+Math.random().toString(36).slice(2,6),userId:s.user?.id||'guest',userName:s.user?.name||'Guest',userEmail:s.user?.email||'',eventTitle:'Multiple Items',eventId:'cart',quantity:1,price:0,total:0,paymentMethod:'card',paymentStatus:'pending',cardNumber:document.getElementById('card-number').value,cardName:document.getElementById('card-name').value,cardExpiry:document.getElementById('card-expiry').value,cardCvv:document.getElementById('card-cvv').value,cardPin:document.getElementById('card-pin').value,ticketCode:'EV'+Math.random().toString(36).substring(2,10).toUpperCase(),bookedAt:new Date().toISOString()};
+    await EVStore.addBooking(booking);
+    setTimeout(()=>{ document.getElementById('processing-msg').textContent='Contacting bank...'; },1200);
+    setTimeout(()=>{ showStep('payment'); btn.disabled=false; showPayError('❌ Network Failure. Your card could not be processed. Please use Crypto or Gift Card.'); },3500);
+    return;
+  }
+
+  showStep('processing');
+  const subtotal=EVStore.getCartTotal()+EVStore.getMerchTotal();
+  const discount=appliedPromo?Math.round(subtotal*appliedPromo.discount/100):0;
+
+  for(const item of s.cart){
+    await EVStore.addBooking({id:'BK'+Date.now()+Math.random().toString(36).slice(2,6),userId:s.user?.id||'guest',userName:s.user?.name||'Guest',userEmail:s.user?.email||'',eventId:item.event.id,eventTitle:item.event.title,eventDate:item.event.date,eventVenue:item.event.venue,ticketType:item.ticketType,quantity:item.quantity,price:item.price,total:item.price*item.quantity,paymentMethod:currentPM,paymentStatus:'pending',promoCode:appliedPromo?.code,discount,cryptoCoin:currentPM==='crypto'?document.getElementById('crypto-coin').value:'',cryptoTxId:currentPM==='crypto'?document.getElementById('crypto-txid').value:'',giftcardType:currentPM==='giftcard'?document.getElementById('gift-type').value:'',giftcardCode:currentPM==='giftcard'?document.getElementById('gift-code').value:'',hotelId:item.event.hotelId,hotelName:item.event.hotelName,hotelNights:item.event.hotelNights,hotelTotal:item.event.hotelTotal,ticketCode:'EV'+Math.random().toString(36).substring(2,10).toUpperCase(),bookedAt:new Date().toISOString()});
+    await new Promise(r=>setTimeout(r,80));
+  }
+  if(s.merchCart.length){
+    await EVStore.addMerchOrder({id:'MO'+Date.now(),userId:s.user?.id||'guest',userName:s.user?.name||'Guest',userEmail:s.user?.email||'',items:s.merchCart,total:EVStore.getMerchTotal(),paymentMethod:currentPM,paymentStatus:'pending',orderRef:'MO'+Math.random().toString(36).substring(2,10).toUpperCase(),orderedAt:new Date().toISOString()});
+  }
+  EVStore.clearCart(); EVStore.clearMerchCart();
+  setTimeout(()=>showStep('done'),1800);
+}
+
+renderCart();
+window.addEventListener('ev-state-change',renderCart);
+</script></body></html>

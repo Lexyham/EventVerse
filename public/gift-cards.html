@@ -1,0 +1,142 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Send a gift to your favourite celebrity or support EventVerse. Celebrity gifts rotate every minute.">
+<title>Gift Cards — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:80px"><div class="container" style="padding-top:28px;max-width:800px">
+  <div class="section-tag" style="margin-bottom:10px">🎁 Gift & Support</div>
+  <h1 style="font-family:Poppins,sans-serif;font-size:clamp(24px,5vw,40px);font-weight:900;color:#fff;margin-bottom:6px">Send a <span class="gradient-text">Gift</span></h1>
+  <p style="color:#64748b;font-size:14px;margin-bottom:24px">Show love for your favourite artists. <span style="color:#A78BFA;font-size:12px">⟳ Celebrities rotate every minute</span></p>
+
+  <div id="gift-done" class="hidden" style="text-align:center;padding:48px 16px">
+    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6C2BD9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 20px">💜</div>
+    <h2 style="color:#fff;font-size:26px;font-weight:900;font-family:Poppins,sans-serif;margin-bottom:8px">Gift Submitted! 🎉</h2>
+    <p style="color:#94a3b8;margin-bottom:8px" id="gift-done-msg"></p>
+    <p style="color:#64748b;font-size:13px;margin-bottom:24px">Pending admin approval. You'll receive a notification when confirmed.</p>
+    <button onclick="resetGiftForm()" class="btn btn-primary">Send Another Gift</button>
+  </div>
+
+  <div id="gift-pay" class="hidden" style="max-width:520px;margin:0 auto">
+    <div style="background:#1A1A2E;border:1px solid rgba(108,43,217,.2);border-radius:20px;padding:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px"><h2 style="color:#fff;font-size:18px;font-weight:700">Complete Gift</h2><span id="pay-amount-disp" style="color:#A78BFA;font-size:22px;font-weight:900"></span></div>
+      <div id="selected-gift-disp" style="display:flex;align-items:center;gap:12px;background:rgba(108,43,217,.06);border:1px solid rgba(108,43,217,.15);border-radius:12px;padding:12px;margin-bottom:18px"><span id="disp-emoji" style="font-size:28px"></span><div><div id="disp-name" style="color:#fff;font-size:14px;font-weight:600;word-wrap:break-word"></div><div id="disp-charity" style="color:#64748b;font-size:12px;word-wrap:break-word"></div></div></div>
+      <div id="pay-error-gift" class="hidden" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;color:#FCA5A5;font-size:13px;margin-bottom:14px;word-wrap:break-word"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+        <button onclick="setGiftPM('crypto')" data-gpm="crypto" class="gpm-btn" style="padding:12px 8px;border-radius:12px;background:rgba(108,43,217,.15);border:1px solid #6C2BD9;cursor:pointer;color:#fff;text-align:center;font-size:13px;font-weight:600">₿ Cryptocurrency</button>
+        <button onclick="setGiftPM('giftcard')" data-gpm="giftcard" class="gpm-btn" style="padding:12px 8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);cursor:pointer;color:#94a3b8;text-align:center;font-size:13px;font-weight:600">🎁 Gift Card</button>
+      </div>
+      <div id="gpm-crypto" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+        <select id="gift-crypto-coin" class="ev-input"><option value="USDT">USDT</option><option value="BTC">BTC</option><option value="ETH">ETH</option><option value="BNB">BNB</option><option value="SOL">SOL</option></select>
+        <div style="background:rgba(0,0,0,.3);border-radius:12px;padding:12px"><p style="color:#94a3b8;font-size:12px;margin-bottom:6px;text-align:center">Send <strong id="gift-crypto-amount" style="color:#fff"></strong> to:</p><div style="display:flex;align-items:center;gap:8px"><code id="gift-wallet" style="color:#F59E0B;font-size:11px;font-family:monospace;flex:1;word-break:break-all;line-height:1.5"></code><button onclick="copyGiftWallet()" id="gift-copy-btn" style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px 10px;color:#fff;cursor:pointer;font-size:11px;flex-shrink:0">📋 Copy</button></div></div>
+        <input id="gift-txid" class="ev-input" placeholder="Transaction ID / Hash *">
+        <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">📤 Upload Screenshot * <span style="color:#EF4444">Required</span></label><input id="gift-crypto-proof" type="file" accept="image/*" multiple class="ev-input" style="padding:8px"><div id="gift-crypto-proof-names" style="color:#22C55E;font-size:12px;margin-top:4px"></div></div>
+      </div>
+      <div id="gpm-giftcard" class="hidden" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+        <select id="gift-card-type" class="ev-input"><option>Amazon</option><option>Apple/iTunes</option><option>Steam</option><option>Google Play</option><option>Razer Gold</option></select>
+        <input id="gift-card-code" class="ev-input" placeholder="Enter gift card code *">
+        <div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:4px">📤 Upload Card Photo(s) * <span style="color:#EF4444">Required</span></label><input id="gift-card-proof" type="file" accept="image/*" multiple class="ev-input" style="padding:8px"><div id="gift-card-proof-names" style="color:#22C55E;font-size:12px;margin-top:4px"></div></div>
+      </div>
+      <div style="display:flex;gap:10px"><button onclick="showGiftBrowse()" class="btn btn-outline" style="flex:1;padding:12px">← Back</button><button onclick="submitGift()" class="btn btn-primary" style="flex:2;padding:12px" id="submit-gift-btn">Send Gift 🎁</button></div>
+    </div>
+  </div>
+
+  <div id="gift-browse">
+    <div style="margin-bottom:28px">
+      <h2 style="color:#fff;font-size:18px;font-weight:700;margin-bottom:4px">✨ Celebrity Gifts <span style="font-size:12px;color:#64748b;font-weight:400;margin-left:8px">Rotates every minute</span></h2>
+      <p style="color:#64748b;font-size:13px;margin-bottom:14px">Show your love for an artist — funds go directly to their named charity.</p>
+      <div id="celeb-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px"></div>
+    </div>
+    <div style="margin-bottom:28px">
+      <h2 style="color:#fff;font-size:18px;font-weight:700;margin-bottom:14px">💜 Support EventVerse</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px" id="platform-grid"></div>
+    </div>
+    <div id="gift-config" class="hidden" style="background:#1A1A2E;border:1px solid rgba(108,43,217,.2);border-radius:20px;padding:24px;max-width:520px">
+      <div id="selected-recipient-disp" style="display:flex;align-items:center;gap:12px;background:rgba(108,43,217,.06);border:1px solid rgba(108,43,217,.15);border-radius:12px;padding:12px;margin-bottom:18px"><span id="recip-emoji" style="font-size:28px"></span><div><div id="recip-name" style="color:#fff;font-size:15px;font-weight:700;word-wrap:break-word"></div><div id="recip-charity" style="color:#64748b;font-size:12px;word-wrap:break-word"></div></div><button onclick="deselectRecipient()" style="margin-left:auto;background:none;border:none;color:#64748b;cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">×</button></div>
+      <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:14px">Gift Amount</h3>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px" id="amount-btns"></div>
+      <input id="gift-custom-amount" class="ev-input" type="number" min="5" placeholder="Or enter custom amount ($5 minimum)" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:5px">Your Name *</label><input id="gift-sender-name" class="ev-input" placeholder="John Doe"></div><div><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:5px">Your Email *</label><input id="gift-sender-email" class="ev-input" type="email" placeholder="you@example.com"></div></div>
+      <div style="margin-bottom:14px"><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:5px">Message (optional)</label><textarea id="gift-message" class="ev-input" rows="3" placeholder="Add a heartfelt message..."></textarea></div>
+      <button onclick="proceedToGiftPay()" class="btn btn-primary btn-full" style="padding:14px;font-size:15px">Continue to Payment →</button>
+    </div>
+  </div>
+</div></main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+let selectedRecipient=null, giftAmount=25, giftPM='crypto', celebOffset=0;
+
+document.getElementById('amount-btns').innerHTML=[10,25,50,100,250,500].map(a=>`<button onclick="setAmount(${a},this)" data-amount="${a}" class="amount-btn" style="padding:8px 16px;border-radius:20px;${a===25?'background:#6C2BD9;color:#fff;border:none':'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#94a3b8'};cursor:pointer;font-size:13px;font-weight:600">$${a}</button>`).join('');
+document.getElementById('platform-grid').innerHTML=PLATFORM_GIFT_OPTIONS.map(p=>`
+  <button onclick='selectGift(${JSON.stringify({name:p.name,emoji:p.icon,charity:p.desc,desc:p.desc}).replace(/'/g,"&apos;")})' class="ev-card" style="padding:20px;text-align:left;cursor:pointer;border:none;width:100%">
+    <div style="font-size:30px;margin-bottom:8px">${p.icon}</div><div style="color:#A78BFA;font-size:13px;font-weight:700;margin-bottom:4px;word-wrap:break-word">${p.name}</div><div style="color:#64748b;font-size:12px;word-wrap:break-word">${p.desc}</div>
+  </button>`).join('');
+
+function rotateCelebs(){ celebOffset=(celebOffset+4)%celebrities.length; renderCelebs(); }
+function renderCelebs(){
+  const visible=Array.from({length:4},(_,i)=>celebrities[(celebOffset+i)%celebrities.length]);
+  document.getElementById('celeb-grid').innerHTML=visible.map(c=>`
+    <button onclick='selectGift(${JSON.stringify({name:c.name,emoji:c.emoji,charity:c.charity,desc:c.desc}).replace(/'/g,"&apos;")})' style="background:#1A1A2E;border:1px solid rgba(108,43,217,.15);border-radius:14px;overflow:hidden;cursor:pointer;text-align:left;width:100%;padding:0" class="ev-card">
+      <div style="height:90px;overflow:hidden;position:relative"><img src="${c.image}" alt="${c.name}" style="width:100%;height:100%;object-fit:cover"><div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent);padding:8px;display:flex;align-items:center;gap:6px"><span style="font-size:18px">${c.emoji}</span><span style="color:#fff;font-size:12px;font-weight:700;word-wrap:break-word">${c.name}</span></div></div>
+      <div style="padding:8px"><p style="color:#A78BFA;font-size:10px;font-weight:600;word-wrap:break-word">${c.charity}</p></div>
+    </button>`).join('');
+}
+function selectGift(g){
+  selectedRecipient=g;
+  document.getElementById('recip-emoji').textContent=g.emoji; document.getElementById('recip-name').textContent=g.name; document.getElementById('recip-charity').textContent=g.charity||g.desc;
+  document.getElementById('disp-emoji').textContent=g.emoji; document.getElementById('disp-name').textContent=g.name; document.getElementById('disp-charity').textContent=g.charity||g.desc;
+  document.getElementById('gift-config').classList.remove('hidden');
+  document.getElementById('gift-config').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+window.selectGift=selectGift;
+function deselectRecipient(){ selectedRecipient=null; document.getElementById('gift-config').classList.add('hidden'); }
+window.deselectRecipient=deselectRecipient;
+function setAmount(a,btn){
+  giftAmount=a; document.getElementById('gift-custom-amount').value='';
+  document.querySelectorAll('.amount-btn').forEach(b=>{ const active=b.dataset.amount==a; b.style.background=active?'#6C2BD9':'rgba(255,255,255,.05)'; b.style.color=active?'#fff':'#94a3b8'; b.style.border=active?'none':'1px solid rgba(255,255,255,.1)'; });
+}
+window.setAmount=setAmount;
+function proceedToGiftPay(){
+  const custom=document.getElementById('gift-custom-amount').value; if(custom) giftAmount=Number(custom);
+  if(giftAmount<5){ showToast('Minimum gift amount is $5','error'); return; }
+  const name=document.getElementById('gift-sender-name').value.trim(), email=document.getElementById('gift-sender-email').value.trim();
+  if(!name||!email){ showToast('Please enter your name and email','error'); return; }
+  if(!selectedRecipient){ showToast('Please select a recipient first','error'); return; }
+  document.getElementById('pay-amount-disp').textContent=`$${giftAmount}`;
+  document.getElementById('gift-crypto-amount').textContent=`$${giftAmount}`;
+  updateGiftWallet();
+  document.getElementById('gift-browse').classList.add('hidden'); document.getElementById('gift-pay').classList.remove('hidden');
+}
+function showGiftBrowse(){ document.getElementById('gift-pay').classList.add('hidden'); document.getElementById('gift-browse').classList.remove('hidden'); }
+window.showGiftBrowse=showGiftBrowse;
+function setGiftPM(pm){
+  giftPM=pm;
+  document.querySelectorAll('.gpm-btn').forEach(b=>{ const a=b.dataset.gpm===pm; b.style.background=a?'rgba(108,43,217,.15)':'rgba(255,255,255,.04)'; b.style.borderColor=a?'#6C2BD9':'rgba(255,255,255,.1)'; b.style.color=a?'#fff':'#94a3b8'; });
+  document.getElementById('gpm-crypto').classList.toggle('hidden',pm!=='crypto');
+  document.getElementById('gpm-giftcard').classList.toggle('hidden',pm!=='giftcard');
+}
+window.setGiftPM=setGiftPM;
+function updateGiftWallet(){ const coin=document.getElementById('gift-crypto-coin').value; document.getElementById('gift-wallet').textContent=CRYPTO_WALLETS[coin]||''; }
+document.getElementById('gift-crypto-coin').addEventListener('change',updateGiftWallet);
+function copyGiftWallet(){ navigator.clipboard.writeText(document.getElementById('gift-wallet').textContent).then(()=>{ const btn=document.getElementById('gift-copy-btn'); btn.textContent='✅ Copied!'; setTimeout(()=>btn.textContent='📋 Copy',2000); }); }
+window.copyGiftWallet=copyGiftWallet;
+document.getElementById('gift-crypto-proof').addEventListener('change',function(){ document.getElementById('gift-crypto-proof-names').textContent=this.files.length?`✓ ${this.files.length} file(s)`:''; });
+document.getElementById('gift-card-proof').addEventListener('change',function(){ document.getElementById('gift-card-proof-names').textContent=this.files.length?`✓ ${this.files.length} file(s) selected`:''; });
+async function submitGift(){
+  const errEl=document.getElementById('pay-error-gift'); errEl.classList.add('hidden');
+  if(giftPM==='crypto'){ if(!document.getElementById('gift-txid').value.trim()){ errEl.textContent='Please enter your transaction ID.'; errEl.classList.remove('hidden'); return; } if(!document.getElementById('gift-crypto-proof').files.length){ errEl.textContent='Please upload your payment screenshot — it is required.'; errEl.classList.remove('hidden'); return; } }
+  if(giftPM==='giftcard'){ if(!document.getElementById('gift-card-code').value.trim()){ errEl.textContent='Please enter your gift card code.'; errEl.classList.remove('hidden'); return; } if(!document.getElementById('gift-card-proof').files.length){ errEl.textContent='Please upload your gift card photo — it is required.'; errEl.classList.remove('hidden'); return; } }
+  const s=EVStore.getState();
+  const name=document.getElementById('gift-sender-name').value.trim(), email=document.getElementById('gift-sender-email').value.trim(), msg=document.getElementById('gift-message').value.trim();
+  const btn=document.getElementById('submit-gift-btn'); btn.disabled=true; btn.textContent='Sending...';
+  await EVStore.addGiftRecord({id:'GF'+Date.now(),userId:s.user?.id||'guest',userName:name,userEmail:email,recipientName:selectedRecipient.name,amount:giftAmount,message:msg,paymentMethod:giftPM,giftcardType:giftPM==='giftcard'?document.getElementById('gift-card-type').value:'',giftcardCode:giftPM==='giftcard'?document.getElementById('gift-card-code').value:'',cryptoCoin:giftPM==='crypto'?document.getElementById('gift-crypto-coin').value:'',cryptoTxId:giftPM==='crypto'?document.getElementById('gift-txid').value:'',status:'pending',createdAt:new Date().toISOString(),ref:'GF'+Math.random().toString(36).substring(2,10).toUpperCase()});
+  document.getElementById('gift-done-msg').textContent=`Thank you, ${name}! Your $${giftAmount} gift to ${selectedRecipient.name} is pending admin approval.`;
+  document.getElementById('gift-pay').classList.add('hidden'); document.getElementById('gift-browse').classList.add('hidden'); document.getElementById('gift-done').classList.remove('hidden');
+  btn.disabled=false; btn.textContent='Send Gift 🎁';
+}
+window.submitGift=submitGift;
+function resetGiftForm(){ selectedRecipient=null; giftAmount=25; document.getElementById('gift-done').classList.add('hidden'); document.getElementById('gift-browse').classList.remove('hidden'); document.getElementById('gift-config').classList.add('hidden'); }
+window.resetGiftForm=resetGiftForm;
+renderCelebs();
+setInterval(rotateCelebs,60000);
+</script></body></html>

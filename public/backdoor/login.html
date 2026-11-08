@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Login — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg">
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#0F0F1A;font-family:Inter,sans-serif;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:20px}.box{max-width:400px;width:100%;background:#1A1A2E;border:1px solid rgba(108,43,217,.3);border-radius:20px;padding:32px}.title{color:#fff;font-size:22px;font-weight:900;text-align:center;margin-bottom:4px;font-family:Georgia,serif}.sub{color:#64748b;font-size:13px;text-align:center;margin-bottom:24px}.field{margin-bottom:14px}.label{color:#94a3b8;font-size:12px;display:block;margin-bottom:5px}.input{background:rgba(255,255,255,.05);border:1px solid rgba(108,43,217,.2);border-radius:10px;color:#E2E8F0;padding:11px 14px;width:100%;font-size:15px;font-family:Inter,sans-serif}.input:focus{outline:none;border-color:#6C2BD9;box-shadow:0 0 0 3px rgba(108,43,217,.15)}.btn{width:100%;padding:13px;background:linear-gradient(135deg,#6C2BD9,#EC4899);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;font-family:Inter,sans-serif}.err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;color:#FCA5A5;font-size:13px;margin-bottom:14px;display:none;word-wrap:break-word}.lock{font-size:48px;text-align:center;margin-bottom:16px}</style></head>
+<body><div class="box">
+  <div class="lock">🔐</div><div class="title">Admin Access</div><p class="sub">EventVerse Control Panel</p>
+  <div class="err" id="err"></div>
+  <form onsubmit="doLogin(event)">
+    <div class="field"><label class="label">Username</label><input id="u" class="input" placeholder="Username" autocomplete="username" required></div>
+    <div class="field"><label class="label">Password</label><input id="p" type="password" class="input" placeholder="••••••••" autocomplete="current-password" required></div>
+    <button class="btn" type="submit" id="login-btn">Access Admin Panel</button>
+  </form>
+  <p style="text-align:center;margin-top:14px"><a href="../index.html" style="color:#64748b;font-size:13px;text-decoration:none">← Return to Site</a></p>
+</div>
+<script src="../js/ev-core-data.js"></script><script src="../js/ev-extra-data.js"></script><script src="../js/store.js"></script>
+<script>
+let attempts=0;
+async function doLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('u').value, p=document.getElementById('p').value;
+  const errEl=document.getElementById('err'), btn=document.getElementById('login-btn');
+  errEl.style.display='none';
+  if(attempts>=2){ errEl.textContent='🔒 Too many failed attempts. Account locked.'; errEl.style.display='block'; btn.disabled=true; return; }
+  btn.disabled=true; btn.textContent='Verifying...';
+  const ok=await EVStore.adminLogin(u,p);
+  if(ok){ window.location.href='../admin.html'; }
+  else{ attempts++; btn.disabled=false; btn.textContent='Access Admin Panel'; errEl.style.display='block'; errEl.textContent=attempts>=2?'🔒 Too many failed attempts. Account locked. Contact your system administrator.':`❌ Invalid credentials. ${2-attempts} attempt${2-attempts!==1?'s':''} remaining.`; }
+}
+if(EVStore.getState().isAdminAuthenticated) window.location.href='../admin.html';
+</script></body></html>

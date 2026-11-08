@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="View and download your EventVerse tickets with QR codes.">
+<title>My Tickets — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟️</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:60px"><div class="container" style="padding-top:24px;max-width:800px">
+  <h1 style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,34px);font-weight:900;color:#fff;margin-bottom:4px">My Tickets</h1>
+  <p id="ticket-count" style="color:#64748b;font-size:14px;margin-bottom:24px">Loading...</p>
+  <div id="not-auth" class="hidden" style="text-align:center;padding:60px 16px"><div style="font-size:56px;margin-bottom:14px">🎟️</div><h2 style="color:#fff;font-size:22px;margin-bottom:8px">Sign in to view your tickets</h2><a href="login.html?redirect=my-tickets.html" class="btn btn-primary btn-lg" style="margin-top:12px;display:inline-flex">Sign In</a></div>
+  <div id="no-tickets" class="hidden" style="text-align:center;padding:60px 16px"><div style="font-size:56px;margin-bottom:14px">🎟️</div><h2 style="color:#fff;font-size:22px;margin-bottom:8px">No tickets yet</h2><p style="color:#64748b;margin-bottom:20px">Book an event to get started!</p><a href="events.html" class="btn btn-primary">Browse Events</a></div>
+  <div id="tickets-list" style="display:flex;flex-direction:column;gap:20px"></div>
+</div></main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+function renderTickets(){
+  const s=EVStore.getState();
+  if(!s.isAuthenticated){ document.getElementById('not-auth').classList.remove('hidden'); document.getElementById('ticket-count').textContent=''; return; }
+  const userBookings=s.bookings.filter(b=>b.userId===s.user?.id);
+  const userStadium=s.stadiumBookings.filter(b=>b.userId===s.user?.id);
+  const total=userBookings.length+userStadium.length;
+  document.getElementById('ticket-count').textContent=`${total} booking${total!==1?'s':''} total`;
+  if(!total){ document.getElementById('no-tickets').classList.remove('hidden'); return; }
+  document.getElementById('no-tickets').classList.add('hidden');
+  const statusBadge=s=>s==='approved'?'<span class="badge badge-approved">✅ Approved</span>':s==='rejected'?'<span class="badge badge-rejected">❌ Rejected</span>':'<span class="badge badge-pending">⏳ Pending</span>';
+  const list=document.getElementById('tickets-list');
+  list.innerHTML=[...userBookings.map(b=>`
+    <div class="ticket-card" style="overflow:visible"><div style="height:3px;background:linear-gradient(135deg,#6C2BD9,#EC4899)"></div>
+      <div style="padding:20px">
+        <div style="display:flex;flex-wrap:wrap;align-items:start;justify-content:space-between;gap:10px;margin-bottom:14px">
+          <div style="min-width:0"><h3 style="color:#fff;font-size:18px;font-weight:900;font-family:Poppins,sans-serif;word-wrap:break-word">${b.eventTitle}</h3><p style="color:#64748b;font-size:12px;margin-top:3px">📍 ${b.eventVenue||'Venue TBA'} · 📅 ${fmtDateShort(new Date(b.eventDate||b.bookedAt||Date.now()))}</p></div>
+          ${statusBadge(b.paymentStatus)}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px">${[['🎫 Ticket',b.ticketType],['🎟️ Qty',`${b.quantity} ticket${b.quantity>1?'s':''}`],['💰 Total',`$${b.total?.toLocaleString()||0}`],['💳 Payment',b.paymentMethod]].map(([l,v])=>`<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px"><div style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.5px">${l}</div><div style="color:#fff;font-size:13px;font-weight:600;margin-top:2px;word-wrap:break-word">${v}</div></div>`).join('')}</div>
+        ${b.hotelName?`<div style="padding:10px;border-radius:10px;background:rgba(108,43,217,.06);border:1px solid rgba(108,43,217,.15);margin-bottom:14px;font-size:13px;color:#A78BFA">🏨 ${b.hotelName} · ${b.hotelNights} night${(b.hotelNights||0)>1?'s':''}</div>`:''}
+        <div style="background:rgba(108,43,217,.06);border:1px solid rgba(108,43,217,.2);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="min-width:0"><div style="color:#64748b;font-size:11px;margin-bottom:3px">🔐 Ticket Code</div><div style="font-family:monospace;color:#A78BFA;font-size:clamp(16px,4vw,24px);font-weight:900;letter-spacing:3px;word-break:break-all">${b.ticketCode}</div></div>
+          <div id="qr-${b.ticketCode}" style="flex-shrink:0"></div>
+        </div>
+        <button onclick="downloadTicket('${b.ticketCode}',decodeURIComponent('${encodeURIComponent(JSON.stringify(b))}'))" class="btn btn-primary btn-sm">📥 Download Ticket (PDF)</button>
+      </div>
+    </div>`),
+  ...userStadium.map(b=>`
+    <div class="ticket-card" style="overflow:visible"><div style="height:3px;background:linear-gradient(135deg,#22C55E,#16A34A)"></div>
+      <div style="padding:20px">
+        <div style="display:flex;flex-wrap:wrap;align-items:start;justify-content:space-between;gap:10px;margin-bottom:14px">
+          <div style="min-width:0"><div style="color:#22C55E;font-size:11px;font-weight:600;margin-bottom:3px">⚽ STADIUM TICKET</div><h3 style="color:#fff;font-size:18px;font-weight:900;font-family:Poppins,sans-serif;word-wrap:break-word">${b.matchName}</h3><p style="color:#64748b;font-size:12px;margin-top:3px">🏟️ ${b.stadiumName||''} · 📅 ${fmtDateShort(new Date(b.matchDate||b.bookedAt||Date.now()))}</p></div>
+          ${statusBadge(b.paymentStatus)}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px">${[['💺 Seat',b.seatCategory],['🎟️ Qty',`${b.quantity}`],['💰 Total',`${b.currency||'USD'} ${b.total?.toLocaleString()||0}`],['💳 Payment',b.paymentMethod]].map(([l,v])=>`<div style="background:rgba(255,255,255,.04);border-radius:10px;padding:10px"><div style="color:#475569;font-size:10px;text-transform:uppercase;letter-spacing:.5px">${l}</div><div style="color:#fff;font-size:13px;font-weight:600;margin-top:2px;word-wrap:break-word">${v}</div></div>`).join('')}</div>
+        <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="min-width:0"><div style="color:#64748b;font-size:11px;margin-bottom:3px">🔐 Stadium Ticket Code</div><div style="font-family:monospace;color:#22C55E;font-size:clamp(16px,4vw,24px);font-weight:900;letter-spacing:3px;word-break:break-all">${b.ticketCode}</div></div>
+          <div id="qr-${b.ticketCode}" style="flex-shrink:0"></div>
+        </div>
+        <button onclick="downloadTicket('${b.ticketCode}',decodeURIComponent('${encodeURIComponent(JSON.stringify(b))}'))" class="btn btn-sm" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff">📥 Download Ticket (PDF)</button>
+      </div>
+    </div>`)].join('');
+  [...userBookings,...userStadium].forEach(b=>{ const qrDiv=document.getElementById('qr-'+b.ticketCode); if(qrDiv){ qrDiv.innerHTML=''; qrDiv.appendChild(generateQR(b.ticketCode,68)); } });
+}
+
+function downloadTicket(code,dataStr){
+  let b={ticketCode:code}; try{ b={...b,...JSON.parse(dataStr)}; }catch{}
+  const seed=code.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const cells=Array.from({length:49},(_,i)=>((seed*(i+1)*137)%100)>45);
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ticket — EventVerse</title><style>
+  *{box-sizing:border-box;margin:0;padding:0}body{background:#0F0F1A;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI',sans-serif;padding:20px}
+  .ticket{width:520px;background:linear-gradient(135deg,#1A1A2E,#16213E);border:2px solid rgba(108,43,217,.5);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(108,43,217,.3)}
+  .head{background:linear-gradient(135deg,#6C2BD9,#EC4899);padding:24px;position:relative}.head::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:20px;background:#1A1A2E;border-radius:50% 50% 0 0/100% 100% 0 0}
+  .logo{font-size:15px;font-weight:900;color:rgba(255,255,255,.8);letter-spacing:-.5px;margin-bottom:6px}.ev-title{font-size:22px;font-weight:900;color:#fff;line-height:1.2;word-wrap:break-word}
+  .body{padding:24px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}.cell{background:rgba(255,255,255,.04);border-radius:10px;padding:10px}
+  .lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#6C2BD9;margin-bottom:3px}.val{font-size:13px;font-weight:600;color:#e2e8f0;word-wrap:break-word}
+  .code-box{background:rgba(108,43,217,.1);border:1px solid rgba(108,43,217,.3);border-radius:12px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+  .code{font-family:monospace;font-size:24px;font-weight:900;color:#A78BFA;letter-spacing:4px;word-break:break-all}
+  .qr{background:#fff;border-radius:8px;padding:6px;width:62px;height:62px;display:grid;grid-template-columns:repeat(7,1fr);gap:1px;flex-shrink:0}
+  .foot{background:rgba(0,0,0,.2);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#475569}
+  .b-p{background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}.b-a{background:rgba(34,197,94,.15);color:#22C55E;border:1px solid rgba(34,197,94,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}.b-r{background:rgba(239,68,68,.15);color:#EF4444;border:1px solid rgba(239,68,68,.3);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+  </style></head><body><div class="ticket">
+  <div class="head"><div class="logo">⚡ EventVerse Official Ticket</div><div class="ev-title">${b.eventTitle||b.matchName||'EventVerse Ticket'}</div><div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:4px">${(b.ticketType||b.seatCategory||'Standard')} Ticket</div></div>
+  <div class="body">
+    <div class="grid">
+      <div class="cell"><div class="lbl">📅 Date</div><div class="val">${new Date(b.eventDate||b.matchDate||b.bookedAt||Date.now()).toDateString()}</div></div>
+      <div class="cell"><div class="lbl">⏰ Gate Opens</div><div class="val">2 Hours Before</div></div>
+      <div class="cell"><div class="lbl">📍 Venue</div><div class="val">${b.eventVenue||b.stadiumName||'Venue TBA'}</div></div>
+      <div class="cell"><div class="lbl">🎫 Ticket Type</div><div class="val">${(b.ticketType||b.seatCategory||'Standard').toUpperCase()}</div></div>
+      <div class="cell"><div class="lbl">👤 Holder</div><div class="val">${b.userName||'Ticket Holder'}</div></div>
+      <div class="cell"><div class="lbl">🎟️ Qty</div><div class="val">${b.quantity||1} Ticket${(b.quantity||1)>1?'s':''}</div></div>
+      <div class="cell"><div class="lbl">📧 Email</div><div class="val" style="font-size:11px;word-break:break-all">${b.userEmail||''}</div></div>
+      <div class="cell"><div class="lbl">📋 Status</div><div class="val"><span class="${b.paymentStatus==='approved'?'b-a':b.paymentStatus==='rejected'?'b-r':'b-p'}">${(b.paymentStatus||'pending').toUpperCase()}</span></div></div>
+      <div class="cell"><div class="lbl">💰 Amount Paid</div><div class="val">$${(b.total||0).toLocaleString()}</div></div>
+      <div class="cell"><div class="lbl">💳 Payment</div><div class="val">${b.paymentMethod||''}</div></div>
+    </div>
+    ${b.hotelName?`<div style="background:rgba(108,43,217,.06);border:1px solid rgba(108,43,217,.2);border-radius:10px;padding:10px;margin-bottom:14px"><div class="lbl">🏨 Hotel Add-on</div><div class="val">${b.hotelName} · ${b.hotelNights} night${(b.hotelNights||0)>1?'s':''}</div></div>`:''}
+    <div class="code-box"><div><div class="lbl">🔐 Ticket Code / Serial Number</div><div class="code">${code}</div><div style="font-size:10px;color:#475569;margin-top:5px">Present at venue · Non-transferable</div></div><div><div style="font-size:9px;color:#64748b;text-align:center;margin-bottom:3px">SCAN AT GATE</div><div class="qr" id="qr-box"></div></div></div>
+    <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:10px"><div class="lbl">🏢 Organiser</div><div style="font-size:11px;color:#94a3b8;margin-top:2px">EventVerse Limited · support@eventverse.com · +1 (800) EVENTVERSE</div></div>
+  </div>
+  <div class="foot"><span>Valid only for this event · No refunds after 48hrs</span><span>eventverse.com</span></div>
+  </div><script>
+  const cells=[${cells.map(b=>b?'true':'false').join(',')}];
+  const qr=document.getElementById('qr-box');
+  cells.forEach(f=>{ const d=document.createElement('div'); d.style.cssText='background:'+(f?'#0F0F1A':'white')+';border-radius:1px'; qr.appendChild(d); });
+  window.print();
+  <\/script></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`eventverse-ticket-${code}.html`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Ticket downloaded! Open it and use Print → Save as PDF for the PDF version.','success',5000);
+}
+window.downloadTicket=downloadTicket;
+renderTickets();
+window.addEventListener('ev-state-change',renderTickets);
+</script></body></html>

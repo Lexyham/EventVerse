@@ -1,0 +1,183 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Book tickets for this event. Choose your ticket type, add a nearby hotel, and checkout securely.">
+<title>Event Details — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎟️</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:80px">
+  <div id="event-hero" style="position:relative;height:45vh;min-height:280px;overflow:hidden;margin-top:-4px">
+    <img id="event-img" src="" alt="" style="width:100%;height:100%;object-fit:cover">
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,#0F0F1A 100%)"></div>
+    <button onclick="history.back()" style="position:absolute;top:16px;left:16px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px" aria-label="Back">←</button>
+    <button id="fav-hero-btn" onclick="toggleFavHero()" style="position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,.6);border:none;cursor:pointer;font-size:18px" aria-label="Add to favorites">🤍</button>
+  </div>
+  <div class="container" style="padding-top:16px">
+    <div style="display:grid;grid-template-columns:1fr;gap:24px">
+      <div>
+        <div id="badges" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px"></div>
+        <h1 id="event-title" style="font-family:Poppins,sans-serif;font-size:clamp(22px,4vw,38px);font-weight:900;color:#fff;line-height:1.1;margin-bottom:8px;word-wrap:break-word"></h1>
+        <p id="event-artist" style="color:#A78BFA;font-size:18px;font-weight:600;margin-bottom:16px;word-wrap:break-word"></p>
+        <div id="event-meta" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px"></div>
+        <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.06);margin-bottom:20px;gap:0">
+          <button class="tab-btn" onclick="switchTab('details',this)" style="padding:10px 18px;background:none;border:none;cursor:pointer;color:#A78BFA;font-size:14px;font-weight:600;border-bottom:2px solid #6C2BD9;margin-bottom:-2px">📋 Details</button>
+          <button class="tab-btn" onclick="switchTab('hotels',this)" id="hotels-tab-btn" style="padding:10px 18px;background:none;border:none;cursor:pointer;color:#64748b;font-size:14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-2px">🏨 Nearby Hotels</button>
+        </div>
+        <div id="tab-details">
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px;margin-bottom:16px">
+            <h3 style="color:#fff;font-weight:700;margin-bottom:10px;font-size:15px">About This Event</h3>
+            <p id="event-desc" style="color:#94a3b8;line-height:1.7;font-size:14px;word-wrap:break-word"></p>
+          </div>
+          <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:20px">
+            <h3 style="color:#fff;font-weight:700;margin-bottom:10px;font-size:15px">Venue Information</h3>
+            <div id="venue-info" style="display:flex;flex-direction:column;gap:8px;font-size:13px;color:#94a3b8"></div>
+          </div>
+        </div>
+        <div id="tab-hotels" class="hidden">
+          <p style="color:#64748b;font-size:13px;margin-bottom:16px">Select a hotel to add to your booking. The total will be included at checkout.</p>
+          <div id="hotels-list" style="display:flex;flex-direction:column;gap:12px"></div>
+          <a href="hotels.html" style="color:#A78BFA;font-size:13px;display:block;margin-top:12px">View all hotels →</a>
+        </div>
+      </div>
+      <div id="booking-widget" style="position:sticky;top:calc(var(--header-h) + 16px);align-self:start;background:#1A1A2E;border:1px solid rgba(108,43,217,.3);border-radius:20px;padding:22px">
+        <div style="text-align:center;margin-bottom:16px"><span style="color:#64748b;font-size:12px">From</span><div id="widget-price" style="font-family:Poppins,sans-serif;font-size:32px;font-weight:900;color:#fff"></div><span style="color:#64748b;font-size:12px">per ticket</span></div>
+        <div style="margin-bottom:16px"><label style="color:#94a3b8;font-size:12px;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Ticket Type</label><div id="ticket-types" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <label style="color:#94a3b8;font-size:13px;font-weight:600">Quantity</label>
+          <div style="display:flex;align-items:center;gap:10px"><button onclick="changeQty(-1)" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:18px;line-height:1">−</button><span id="qty-val" style="color:#fff;font-weight:700;font-size:16px;min-width:24px;text-align:center">1</span><button onclick="changeQty(1)" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#fff;cursor:pointer;font-size:18px;line-height:1">+</button></div>
+        </div>
+        <div id="hotel-addon" class="hidden" style="margin-bottom:14px;padding:10px 14px;background:rgba(108,43,217,.08);border:1px solid rgba(108,43,217,.2);border-radius:12px;font-size:13px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="color:#A78BFA">🏨 <span id="addon-hotel-name"></span></span><button onclick="removeHotel()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:12px">Remove</button></div>
+          <div style="color:#64748b;font-size:12px;margin-top:3px"><span id="addon-nights"></span> night(s) · <span id="addon-hotel-total"></span></div>
+        </div>
+        <div id="price-breakdown" style="border-top:1px solid rgba(255,255,255,.06);padding-top:12px;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;font-size:13px"></div>
+        <button id="add-cart-btn" onclick="addToCart()" class="btn btn-primary btn-full" style="padding:14px;font-size:15px;margin-bottom:8px">🛒 Add to Cart</button>
+        <button onclick="switchTab('hotels', document.getElementById('hotels-tab-btn'))" class="btn btn-outline btn-full btn-sm">🏨 Add Hotel</button>
+        <p style="text-align:center;color:#475569;font-size:11px;margin-top:10px">Free cancellation 48hrs before event</p>
+      </div>
+    </div>
+    <div style="margin-top:40px"><h3 style="color:#fff;font-size:20px;font-weight:800;margin-bottom:18px;font-family:Poppins,sans-serif">Similar Events</h3><div id="similar-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px"></div></div>
+  </div>
+</main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+const params=new URLSearchParams(window.location.search);
+const eventId=params.get('id');
+const s=EVStore.getState();
+const adminEvs=(s.adminEvents||[]).map(ae=>({id:ae.id,title:ae.title,artist:ae.artist||ae.title,category:ae.category,date:ae.date,time:ae.time||'8:00 PM',venue:ae.venue||'TBA',city:ae.city,state:ae.state||'',country:ae.country,image:ae.image||'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',price:{min:ae.price?.min||0,max:ae.price?.max||ae.price?.min||0,currency:ae.price?.currency||'USD'},rating:4.5,reviewCount:0,hot:ae.hot,featured:ae.featured,trending:ae.trending,description:ae.description||'',ticketsAvailable:ae.ticketsAvailable||100}));
+const allEvents=[...adminEvs,...events];
+const ev=allEvents.find(e=>e.id===eventId);
+
+if(!ev){ document.querySelector('main').innerHTML='<div style="text-align:center;padding:80px 16px"><h2 style="color:#fff">Event not found</h2><a href="events.html" class="btn btn-primary" style="margin-top:16px;display:inline-flex">Browse Events</a></div>'; }
+else{
+  const cs=currencySymbol(ev.price?.currency||'USD');
+  const priceMap={standard:ev.price.min,premium:Math.round((ev.price.max||ev.price.min*1.5)*.5),vip:Math.round((ev.price.max||ev.price.min*2)*.8)};
+  let ticketType='standard', qty=1, selectedHotel=null, hotelNights=1;
+
+  document.title=`${ev.title} — EventVerse`;
+  document.querySelector('meta[name=description]').content=`Book tickets for ${ev.title} at ${ev.venue}, ${ev.city}. From ${cs}${ev.price.min}.`;
+  document.getElementById('event-img').src=ev.image; document.getElementById('event-img').alt=ev.title;
+  document.getElementById('event-title').textContent=ev.title;
+  document.getElementById('event-artist').textContent=ev.artist;
+
+  const bDiv=document.getElementById('badges');
+  if(ev.hot) bDiv.innerHTML+=`<span class="hot-badge">🔥 HOT</span>`;
+  if(ev.featured) bDiv.innerHTML+=`<span style="padding:3px 10px;border-radius:12px;background:rgba(59,130,246,.2);color:#93C5FD;font-size:11px;font-weight:700">⭐ FEATURED</span>`;
+  bDiv.innerHTML+=`<span style="padding:3px 10px;border-radius:12px;background:rgba(108,43,217,.15);color:#A78BFA;font-size:11px;font-weight:700;text-transform:capitalize">${ev.category}</span>`;
+
+  const meta=document.getElementById('event-meta');
+  [{icon:'📅',text:fmtDateFull(new Date(ev.date))},{icon:'⏰',text:ev.time||'8:00 PM'},{icon:'📍',text:`${ev.venue}, ${ev.city}${ev.state?', '+ev.state:''}, ${ev.country}`},{icon:'🎟️',text:`${ev.ticketsAvailable?.toLocaleString()||'Available'} tickets remaining`},{icon:'⭐',text:`${ev.rating||4.5} (${ev.reviewCount?.toLocaleString()||0} reviews)`}].forEach(m=>{
+    meta.innerHTML+=`<div style="display:flex;align-items:center;gap:8px;color:#94a3b8;font-size:14px"><span style="flex-shrink:0;width:20px;text-align:center">${m.icon}</span><span style="word-wrap:break-word">${m.text}</span></div>`;
+  });
+
+  document.getElementById('event-desc').textContent=ev.description||`Join us for ${ev.title} — an unforgettable live experience at ${ev.venue} in ${ev.city}.`;
+
+  const venueInfo=document.getElementById('venue-info');
+  [{icon:'🏟️',t:`${ev.venue}, ${ev.city}, ${ev.country}`},{icon:'⏰',t:'Gates open 2 hours before event'},{icon:'📵',t:'No professional cameras or recording devices'},{icon:'♿',t:'Wheelchair accessible — contact venue for assistance'}].forEach(v=>{
+    venueInfo.innerHTML+=`<div style="display:flex;gap:8px"><span style="flex-shrink:0">${v.icon}</span><span style="word-wrap:break-word">${v.t}</span></div>`;
+  });
+
+  const nearbyHotels=getHotelsForCity(ev.city).slice(0,4);
+  const hotelsList=document.getElementById('hotels-list');
+  if(!nearbyHotels.length){ hotelsList.innerHTML='<p style="color:#64748b;font-size:13px">No hotels found near this city. <a href="hotels.html" style="color:#A78BFA">Browse all hotels →</a></p>'; }
+  else{
+    hotelsList.innerHTML=nearbyHotels.map(h=>`
+    <div onclick="selectHotel('${h.id}')" id="hotel-card-${h.id}" style="border:1px solid rgba(108,43,217,.15);border-radius:14px;padding:12px;cursor:pointer;transition:all .2s;display:flex;gap:12px;background:rgba(255,255,255,.02)">
+      <img src="${h.image}" alt="${h.name}" style="width:72px;height:72px;border-radius:10px;object-fit:cover;flex-shrink:0">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:start;justify-content:space-between;gap:8px"><h4 style="color:#fff;font-size:14px;font-weight:700;word-wrap:break-word">${h.name}</h4><div style="text-align:right;flex-shrink:0"><div style="color:#A78BFA;font-weight:900;font-size:14px">${currencySymbol(h.currency)}${h.pricePerNight.toLocaleString()}</div><div style="color:#64748b;font-size:10px">/night</div></div></div>
+        <div style="color:#64748b;font-size:11px;margin-top:2px">📍 ${h.distanceToVenue}km from venue · ⭐ ${h.rating}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px">${(h.amenities||[]).slice(0,3).map(a=>`<span style="padding:2px 7px;background:rgba(255,255,255,.05);border-radius:5px;color:#64748b;font-size:10px">${a}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+  }
+  document.getElementById('hotels-tab-btn').textContent=`🏨 Nearby Hotels (${nearbyHotels.length})`;
+
+  const ttDiv=document.getElementById('ticket-types');
+  [{key:'standard',label:'Standard',price:priceMap.standard},{key:'premium',label:'Premium',price:priceMap.premium},{key:'vip',label:'VIP',price:priceMap.vip}].forEach(t=>{
+    ttDiv.innerHTML+=`<button onclick="setTicketType('${t.key}',this)" data-key="${t.key}" class="tt-btn" style="padding:8px 4px;border-radius:10px;${t.key==='standard'?'background:rgba(108,43,217,.2);border:1px solid #6C2BD9;color:#fff':'background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#94a3b8'};cursor:pointer;font-size:11px;font-weight:700;text-align:center"><div>${t.label}</div><div style="font-size:12px;margin-top:2px">${cs}${t.price.toLocaleString()}</div></button>`;
+  });
+  function setTicketType(key,btn){
+    ticketType=key;
+    document.querySelectorAll('.tt-btn').forEach(b=>{ const a=b.dataset.key===key; b.style.background=a?'rgba(108,43,217,.2)':'rgba(255,255,255,.04)'; b.style.borderColor=a?'#6C2BD9':'rgba(255,255,255,.1)'; b.style.color=a?'#fff':'#94a3b8'; });
+    updateWidget();
+  }
+  window.setTicketType=setTicketType;
+
+  function selectHotel(hid){
+    const h=hotels.find(x=>x.id===hid); if(!h) return;
+    if(selectedHotel?.id===hid){ selectedHotel=null; document.getElementById('hotel-addon').classList.add('hidden'); document.querySelectorAll('[id^=hotel-card-]').forEach(c=>{c.style.borderColor='rgba(108,43,217,.15)';c.style.background='rgba(255,255,255,.02)';}); }
+    else{
+      selectedHotel=h;
+      document.querySelectorAll('[id^=hotel-card-]').forEach(c=>{c.style.borderColor='rgba(108,43,217,.15)';c.style.background='rgba(255,255,255,.02)';});
+      const card=document.getElementById('hotel-card-'+hid); if(card){ card.style.borderColor='#6C2BD9'; card.style.background='rgba(108,43,217,.05)'; }
+      document.getElementById('addon-hotel-name').textContent=h.name; document.getElementById('hotel-addon').classList.remove('hidden');
+    }
+    updateWidget();
+  }
+  window.selectHotel=selectHotel;
+  function removeHotel(){ selectedHotel=null; document.getElementById('hotel-addon').classList.add('hidden'); document.querySelectorAll('[id^=hotel-card-]').forEach(c=>{c.style.borderColor='rgba(108,43,217,.15)';c.style.background='rgba(255,255,255,.02)';}); updateWidget(); }
+  window.removeHotel=removeHotel;
+  function changeQty(d){ qty=Math.max(1,Math.min(10,qty+d)); document.getElementById('qty-val').textContent=qty; updateWidget(); }
+  window.changeQty=changeQty;
+
+  function updateWidget(){
+    const ticketTotal=priceMap[ticketType]*qty;
+    const hTotal=selectedHotel?(selectedHotel.pricePerNight*hotelNights):0;
+    const grand=ticketTotal+hTotal;
+    document.getElementById('widget-price').textContent=`${cs}${priceMap[ticketType].toLocaleString()}`;
+    if(selectedHotel){ document.getElementById('addon-nights').textContent=hotelNights; document.getElementById('addon-hotel-total').textContent=`${currencySymbol(selectedHotel.currency)}${hTotal.toLocaleString()} total`; }
+    const pb=document.getElementById('price-breakdown');
+    pb.innerHTML=`<div style="display:flex;justify-content:space-between;color:#64748b"><span>${qty}× ${ticketType}</span><span>${cs}${ticketTotal.toLocaleString()}</span></div>`;
+    if(selectedHotel) pb.innerHTML+=`<div style="display:flex;justify-content:space-between;color:#64748b"><span>Hotel (${hotelNights}n)</span><span>${currencySymbol(selectedHotel.currency)}${hTotal.toLocaleString()}</span></div>`;
+    pb.innerHTML+=`<div style="display:flex;justify-content:space-between;color:#fff;font-weight:700;font-size:15px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06)"><span>Total</span><span style="color:#A78BFA">${cs}${grand.toLocaleString()}</span></div>`;
+  }
+  updateWidget();
+
+  function addToCart(){
+    const state=EVStore.getState();
+    if(!state.isAuthenticated){ window.location.href=`login.html?redirect=${encodeURIComponent(window.location.href)}`; return; }
+    const item={id:ev.id+'-'+ticketType,event:{...ev,hotelId:selectedHotel?.id,hotelName:selectedHotel?.name,hotelNights:selectedHotel?hotelNights:undefined,hotelTotal:selectedHotel?(selectedHotel.pricePerNight*hotelNights):undefined},quantity:qty,ticketType,price:priceMap[ticketType]};
+    EVStore.addToCart(item);
+    const btn=document.getElementById('add-cart-btn');
+    btn.textContent='✅ Added to Cart!'; btn.style.background='linear-gradient(135deg,#22C55E,#16A34A)';
+    setTimeout(()=>{ btn.textContent='🛒 Add to Cart'; btn.style.background=''; },2500);
+    showToast(`${ev.title} added to cart!`,'success');
+  }
+  window.addToCart=addToCart;
+
+  function updateFavBtn(){ document.getElementById('fav-hero-btn').textContent=EVStore.isFavorite(ev.id)?'❤️':'🤍'; }
+  function toggleFavHero(){ EVStore.toggleFavorite(ev.id); updateFavBtn(); showToast(EVStore.isFavorite(ev.id)?'Added to favorites!':'Removed from favorites','info',2000); }
+  window.toggleFavHero=toggleFavHero; updateFavBtn();
+
+  function switchTab(tab,btn){
+    ['details','hotels'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden',t!==tab));
+    document.querySelectorAll('.tab-btn').forEach(b=>{ b.style.color='#64748b'; b.style.borderBottomColor='transparent'; });
+    if(btn){ btn.style.color='#A78BFA'; btn.style.borderBottomColor='#6C2BD9'; }
+  }
+  window.switchTab=switchTab;
+  switchTab('details', document.querySelector('.tab-btn'));
+
+  const similar=allEvents.filter(e=>e.category===ev.category&&e.id!==ev.id).slice(0,4);
+  document.getElementById('similar-grid').innerHTML=similar.map(e=>eventCardHTML(e)).join('');
+}
+</script></body></html>

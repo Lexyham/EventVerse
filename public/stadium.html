@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Book stadium tickets for Premier League, World Cup, Champions League and more. 15 stadiums, 40+ countries.">
+<title>Stadium Booking — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚽</text></svg>">
+<link rel="stylesheet" href="css/main.css"></head>
+<body><div id="header-placeholder"></div>
+<main class="page-top" style="padding-bottom:60px"><div class="container" style="padding-top:28px">
+  <div style="margin-bottom:28px">
+    <div class="section-tag" style="margin-bottom:10px;background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#22C55E">⚽ Stadium</div>
+    <h1 style="font-family:Poppins,sans-serif;font-size:clamp(24px,5vw,42px);font-weight:900;color:#fff;margin-bottom:6px">Stadium <span style="color:#22C55E">Booking</span></h1>
+    <p style="color:#64748b;font-size:15px">World Cup · Premier League · Champions League · La Liga · Bundesliga</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+    <input id="match-search" class="ev-input" placeholder="Search teams, competition, city..." style="flex:1;min-width:200px" oninput="renderMatches()">
+    <select id="match-sort" class="ev-input" style="width:auto;min-width:130px" onchange="renderMatches()"><option value="date">Sort: Date</option><option value="price">Sort: Price</option></select>
+  </div>
+  <div id="matches-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px"></div>
+</div></main>
+<div id="footer-placeholder"></div>
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+function renderMatches(){
+  const s=EVStore.getState();
+  const adminM=(s.adminMatches||[]).map(m=>({...m,id:m.id}));
+  let all=[...adminM,...staticMatches];
+  const q=document.getElementById('match-search').value.toLowerCase();
+  if(q) all=all.filter(m=>(m.matchName||'').toLowerCase().includes(q)||(m.stadiumName||'').toLowerCase().includes(q)||(m.competition||'').toLowerCase().includes(q)||(m.city||'').toLowerCase().includes(q)||(m.homeTeam||'').toLowerCase().includes(q)||(m.awayTeam||'').toLowerCase().includes(q));
+  if(document.getElementById('match-sort').value==='price') all.sort((a,b)=>(a.tickets?.economy||0)-(b.tickets?.economy||0));
+  else all.sort((a,b)=>new Date(a.date||a.matchDate)-new Date(b.date||b.matchDate));
+  document.getElementById('matches-grid').innerHTML=all.map(m=>{
+    const cs=currencySymbol(m.tickets?.currency||'USD');
+    const d=fmtDateShort(new Date(m.date||m.matchDate||Date.now()));
+    return`<a href="stadium-detail.html?id=${m.id}" style="text-decoration:none;display:block" class="ev-card">
+      <div style="position:relative;height:160px;overflow:hidden">
+        <img src="${m.image||m.imageUrl||'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80'}" alt="${m.matchName}" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(15,15,26,.95),transparent 60%)"></div>
+        <div style="position:absolute;bottom:12px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:14px">
+          <span style="font-size:22px">${m.homeFlag||'⚽'}</span><span style="background:rgba(34,197,94,.25);border:1px solid rgba(34,197,94,.5);color:#22C55E;padding:4px 12px;border-radius:8px;font-size:13px;font-weight:700">VS</span><span style="font-size:22px">${m.awayFlag||'⚽'}</span>
+        </div>
+      </div>
+      <div style="padding:14px">
+        <p style="color:#22C55E;font-size:11px;font-weight:600;margin-bottom:4px;word-wrap:break-word">${m.competition||''}</p>
+        <h3 style="color:#fff;font-size:15px;font-weight:800;margin-bottom:8px;word-wrap:break-word">${m.matchName}</h3>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:#64748b"><span>🏟️ ${m.stadiumName||''}</span><span>📍 ${m.city||''}, ${m.country||''}</span><span>📅 ${d} · ${m.time||m.matchTime||''}</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"><span style="color:#A78BFA;font-weight:900;font-size:15px">${cs}${(m.tickets?.economy||0).toLocaleString()}+</span><span style="color:#64748b;font-size:11px">${(m.availableSeats||0).toLocaleString()} seats left</span></div>
+      </div>
+    </a>`;
+  }).join('');
+}
+renderMatches();
+window.addEventListener('ev-state-change',renderMatches);
+</script></body></html>

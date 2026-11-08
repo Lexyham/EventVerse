@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Panel — EventVerse</title><link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg">
+<link rel="stylesheet" href="css/main.css">
+<style>
+.admin-layout{display:flex;min-height:100svh;background:#0a0a14}
+.sidebar{width:220px;flex-shrink:0;background:#0a0a14;border-right:1px solid rgba(108,43,217,.15);padding:16px 10px;display:flex;flex-direction:column;position:sticky;top:0;height:100svh;overflow-y:auto}
+@media(max-width:768px){.admin-layout{flex-direction:column}.sidebar{width:100%;height:auto;position:relative;padding:10px;overflow-x:auto;flex-direction:row;flex-wrap:nowrap;border-right:none;border-bottom:1px solid rgba(108,43,217,.15)}}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;color:#64748b;font-size:13px;cursor:pointer;background:none;border:none;text-align:left;width:100%;white-space:nowrap;flex-shrink:0}
+.sidebar-link.active{background:rgba(108,43,217,.2);color:#A78BFA;font-weight:600}
+.admin-main{flex:1;padding:24px;overflow:auto}
+@media(max-width:768px){.admin-main{padding:14px}}
+.stat-card{background:#1A1A2E;border:1px solid rgba(108,43,217,.15);border-radius:14px;padding:18px}
+.tab-content{display:none}.tab-content.active{display:block}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.badge-count{width:18px;height:18px;border-radius:50%;background:#F59E0B;color:#000;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style></head>
+<body>
+<div id="admin-auth-check" style="min-height:100svh;display:flex;align-items:center;justify-content:center;background:#0a0a14"><div style="text-align:center"><div style="font-size:48px;margin-bottom:12px">🔐</div><h2 style="color:#fff;margin-bottom:8px">Checking access...</h2><div class="spinner" style="margin:0 auto"></div></div></div>
+
+<div id="admin-panel" class="hidden">
+<div class="admin-layout">
+<aside class="sidebar">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:4px 8px;flex-shrink:0" class="hide-mobile"><div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#6C2BD9,#EC4899);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">⚡</div><span style="color:#fff;font-size:14px;font-weight:700;margin-left:6px">Admin</span></div>
+  <button class="sidebar-link active" onclick="switchTab('dashboard',this)">📊 Dashboard</button>
+  <button class="sidebar-link" onclick="switchTab('events',this)">🎵 Events</button>
+  <button class="sidebar-link" onclick="switchTab('matches',this)">⚽ Matches</button>
+  <button class="sidebar-link" onclick="switchTab('products',this)">🛍️ Products</button>
+  <button class="sidebar-link" onclick="switchTab('bookings',this)" id="sb-tab-btn">🎟️ Event Bookings</button>
+  <button class="sidebar-link" onclick="switchTab('stadium-bookings',this)" id="ssb-tab-btn">⚽ Stadium</button>
+  <button class="sidebar-link" onclick="switchTab('merch-orders',this)" id="smo-tab-btn">📦 Merch Orders</button>
+  <button class="sidebar-link" onclick="switchTab('gifts',this)" id="sg-tab-btn">🎁 Gifts</button>
+  <button class="sidebar-link" onclick="switchTab('promos',this)">🏷️ Promos</button>
+  <button class="sidebar-link" onclick="switchTab('notifications',this)">🔔 Notifications</button>
+  <div style="flex:1" class="hide-mobile"></div>
+  <button onclick="doAdminLogout()" class="sidebar-link hide-mobile" style="color:#EF4444;margin-top:auto">🚪 Sign Out</button>
+</aside>
+<main class="admin-main">
+  <div id="api-banner" class="hidden" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:10px 14px;color:#FCD34D;font-size:12px;margin-bottom:14px">⚠️ API offline — showing local data. Start the server for full functionality.</div>
+
+  <div id="tab-dashboard" class="tab-content active">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px"><h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff">Dashboard</h1><button onclick="loadData()" class="btn btn-sm" style="background:rgba(108,43,217,.15);border:1px solid rgba(108,43,217,.3);color:#A78BFA;font-size:12px">🔄 Refresh</button></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px" id="stat-cards"></div>
+    <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:12px">Recent Activity</h3>
+    <div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden"><div class="table-wrap"><table class="ev-table" id="recent-table"><thead><tr><th>User</th><th>Item</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead><tbody id="recent-tbody"></tbody></table></div></div>
+  </div>
+
+  <div id="tab-events" class="tab-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff">Manage Events</h1><button onclick="showEventForm()" class="btn btn-primary btn-sm">+ Add Event</button></div>
+    <div id="event-form-wrap" class="hidden" style="background:#1A1A2E;border:1px solid rgba(108,43,217,.2);border-radius:16px;padding:20px;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="color:#fff;font-weight:700" id="ev-form-title">Add Event</h3><button onclick="hideEventForm()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px">×</button></div>
+      <form onsubmit="saveEvent(event)" class="form-grid">
+        <input type="hidden" id="ev-edit-id">
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Title *</label><input id="ev-title" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Artist</label><input id="ev-artist" class="ev-input" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Category</label><select id="ev-cat" class="ev-input" style="font-size:13px"><option value="concerts">Concerts</option><option value="sports">Sports</option><option value="arts">Arts</option><option value="comedy">Comedy</option><option value="family">Family</option><option value="vip">VIP</option></select></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Date</label><input id="ev-date" class="ev-input" type="date" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Time</label><input id="ev-time" class="ev-input" placeholder="8:00 PM" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Venue *</label><input id="ev-venue" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">City *</label><input id="ev-city" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Country *</label><input id="ev-country" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Min Price ($) *</label><input id="ev-pmin" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Max Price ($) *</label><input id="ev-pmax" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Tickets Available</label><input id="ev-tickets" class="ev-input" type="number" placeholder="500" style="font-size:13px"></div>
+        <div style="grid-column:1/-1"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Image URL</label><input id="ev-img" class="ev-input" placeholder="https://images.unsplash.com/..." style="font-size:13px"></div>
+        <div style="grid-column:1/-1"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Description</label><textarea id="ev-desc" class="ev-input" rows="2" style="font-size:13px"></textarea></div>
+        <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:16px">
+          <label style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:13px;cursor:pointer"><input type="checkbox" id="ev-hot" style="accent-color:#6C2BD9;width:15px;height:15px"> 🔥 Hot</label>
+          <label style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:13px;cursor:pointer"><input type="checkbox" id="ev-featured" style="accent-color:#6C2BD9;width:15px;height:15px"> ⭐ Featured</label>
+          <label style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:13px;cursor:pointer"><input type="checkbox" id="ev-trending" style="accent-color:#6C2BD9;width:15px;height:15px"> 📈 Trending</label>
+        </div>
+        <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end"><button type="button" onclick="hideEventForm()" class="btn btn-sm btn-outline">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Save Event</button></div>
+      </form>
+    </div>
+    <div id="admin-events-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div style="margin-top:20px"><p style="color:#64748b;font-size:12px;margin-bottom:8px">Built-in events (first 8 of 187):</p><div class="table-wrap"><table class="ev-table"><thead><tr><th>Title</th><th>Artist</th><th>City</th><th>Price</th></tr></thead><tbody id="static-events-tbody"></tbody></table></div></div>
+  </div>
+
+  <div id="tab-matches" class="tab-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff">Stadium Matches</h1><button onclick="showMatchForm()" class="btn btn-sm" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff">+ Add Match</button></div>
+    <div id="match-form-wrap" class="hidden" style="background:#1A1A2E;border:1px solid rgba(34,197,94,.2);border-radius:16px;padding:20px;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="color:#fff;font-weight:700">Add Match</h3><button onclick="hideMatchForm()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px">×</button></div>
+      <form onsubmit="saveMatch(event)" class="form-grid">
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Stadium Name *</label><input id="m-stadium" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Match Name *</label><input id="m-name" class="ev-input" required placeholder="Chelsea vs Liverpool" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Home Team *</label><input id="m-home" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Away Team *</label><input id="m-away" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Competition</label><input id="m-comp" class="ev-input" placeholder="Premier League" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">City *</label><input id="m-city" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Country *</label><input id="m-country" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Date</label><input id="m-date" class="ev-input" type="date" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Time</label><input id="m-time" class="ev-input" placeholder="8:00 PM" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Currency</label><select id="m-currency" class="ev-input" style="font-size:13px"><option>USD</option><option>GBP</option><option>EUR</option><option>NGN</option><option>ZAR</option><option>AUD</option><option>MXN</option></select></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">VIP Price *</label><input id="m-vip" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Premium Price *</label><input id="m-premium" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Regular Price *</label><input id="m-regular" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Economy Price *</label><input id="m-economy" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Available Seats</label><input id="m-seats" class="ev-input" type="number" placeholder="25000" style="font-size:13px"></div>
+        <div style="grid-column:1/-1"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Image URL</label><input id="m-img" class="ev-input" placeholder="https://..." style="font-size:13px"></div>
+        <div style="grid-column:1/-1"><label style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:13px;cursor:pointer"><input type="checkbox" id="m-enabled" checked style="accent-color:#22C55E;width:15px;height:15px"> ✅ Ticket Sales Enabled (shows on site)</label></div>
+        <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end"><button type="button" onclick="hideMatchForm()" class="btn btn-sm btn-outline">Cancel</button><button type="submit" class="btn btn-sm" style="background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff">Save Match</button></div>
+      </form>
+    </div>
+    <div id="admin-matches-list" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div style="margin-top:20px"><p style="color:#64748b;font-size:12px;margin-bottom:8px">Built-in matches (15 total):</p><div class="table-wrap"><table class="ev-table"><thead><tr><th>Match</th><th>Stadium</th><th>Date</th><th>Economy</th></tr></thead><tbody id="static-matches-tbody"></tbody></table></div></div>
+  </div>
+
+  <div id="tab-products" class="tab-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff">Products / Merch</h1><button onclick="showProductForm()" class="btn btn-primary btn-sm">+ Add Product</button></div>
+    <div id="product-form-wrap" class="hidden" style="background:#1A1A2E;border:1px solid rgba(108,43,217,.2);border-radius:16px;padding:20px;margin-bottom:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="color:#fff;font-weight:700">Add Product</h3><button onclick="hideProductForm()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:20px">×</button></div>
+      <form onsubmit="saveProduct(event)" class="form-grid">
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Product Name *</label><input id="prod-name" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Artist / Celebrity *</label><input id="prod-artist" class="ev-input" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Category</label><select id="prod-cat" class="ev-input" style="font-size:13px"><option value="apparel">Apparel</option><option value="accessories">Accessories</option><option value="collectibles">Collectibles</option><option value="digital">Digital</option></select></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Price ($) *</label><input id="prod-price" class="ev-input" type="number" required style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Stock</label><input id="prod-stock" class="ev-input" type="number" placeholder="100" style="font-size:13px"></div>
+        <div><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Badge</label><input id="prod-badge" class="ev-input" placeholder="🔥 Best Seller" style="font-size:13px"></div>
+        <div style="grid-column:1/-1"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Image URL</label><input id="prod-img" class="ev-input" placeholder="https://..." style="font-size:13px"></div>
+        <div style="grid-column:1/-1"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Description</label><textarea id="prod-desc" class="ev-input" rows="2" style="font-size:13px"></textarea></div>
+        <div style="grid-column:1/-1"><label style="display:flex;align-items:center;gap:6px;color:#94a3b8;font-size:13px;cursor:pointer"><input type="checkbox" id="prod-instock" checked style="accent-color:#6C2BD9;width:15px;height:15px"> In Stock</label></div>
+        <div style="grid-column:1/-1;display:flex;gap:8px;justify-content:flex-end"><button type="button" onclick="hideProductForm()" class="btn btn-sm btn-outline">Cancel</button><button type="submit" class="btn btn-primary btn-sm">Save Product</button></div>
+      </form>
+    </div>
+    <div id="admin-products-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px"></div>
+  </div>
+
+  <div id="tab-bookings" class="tab-content">
+    <h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:16px">Event Bookings</h1>
+    <div class="table-wrap"><table class="ev-table"><thead><tr><th>User</th><th>Event</th><th>Ticket</th><th>Payment</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bookings-tbody"></tbody></table></div>
+    <p id="bookings-empty" class="hidden" style="color:#64748b;font-size:13px;text-align:center;padding:40px">No event bookings yet.</p>
+  </div>
+  <div id="tab-stadium-bookings" class="tab-content">
+    <h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:16px">Stadium Bookings</h1>
+    <div class="table-wrap"><table class="ev-table"><thead><tr><th>User</th><th>Match</th><th>Seat</th><th>Payment</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="stadium-bookings-tbody"></tbody></table></div>
+    <p id="stadium-bookings-empty" class="hidden" style="color:#64748b;font-size:13px;text-align:center;padding:40px">No stadium bookings yet.</p>
+  </div>
+  <div id="tab-merch-orders" class="tab-content">
+    <h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:16px">Merch Orders</h1>
+    <div class="table-wrap"><table class="ev-table"><thead><tr><th>Customer</th><th>Order Ref</th><th>Items</th><th>Payment</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="merch-orders-tbody"></tbody></table></div>
+    <p id="merch-orders-empty" class="hidden" style="color:#64748b;font-size:13px;text-align:center;padding:40px">No merch orders yet.</p>
+  </div>
+  <div id="tab-gifts" class="tab-content">
+    <h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:16px">Gift Records</h1>
+    <div class="table-wrap"><table class="ev-table"><thead><tr><th>Sender</th><th>Recipient</th><th>Amount</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody id="gifts-tbody"></tbody></table></div>
+    <p id="gifts-empty" class="hidden" style="color:#64748b;font-size:13px;text-align:center;padding:40px">No gift records yet.</p>
+  </div>
+
+  <div id="tab-promos" class="tab-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px"><h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff">Promo Codes</h1><button onclick="showPromoForm()" class="btn btn-primary btn-sm">+ New Code</button></div>
+    <div id="promo-form-wrap" class="hidden" style="background:#1A1A2E;border:1px solid rgba(108,43,217,.2);border-radius:14px;padding:18px;margin-bottom:16px">
+      <form onsubmit="savePromo(event)" style="display:flex;flex-wrap:wrap;gap:10px;align-items:end">
+        <div style="min-width:130px"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Code *</label><input id="promo-code" class="ev-input" required placeholder="SAVE50" style="font-size:13px;text-transform:uppercase"></div>
+        <div style="min-width:100px"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Discount % *</label><input id="promo-discount" class="ev-input" type="number" min="1" max="100" required placeholder="25" style="font-size:13px"></div>
+        <div style="min-width:100px"><label style="color:#94a3b8;font-size:11px;display:block;margin-bottom:4px">Usage Limit</label><input id="promo-limit" class="ev-input" type="number" placeholder="Optional" style="font-size:13px"></div>
+        <button type="submit" class="btn btn-primary btn-sm" style="height:42px">Add Code</button>
+        <button type="button" onclick="hidePromoForm()" class="btn btn-outline btn-sm" style="height:42px">Cancel</button>
+      </form>
+    </div>
+    <div id="promos-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <div id="tab-notifications" class="tab-content">
+    <h1 style="font-family:Poppins,sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:16px">Notifications</h1>
+    <div style="background:#1A1A2E;border:1px solid rgba(108,43,217,.2);border-radius:16px;padding:20px;margin-bottom:20px">
+      <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:14px">📣 Broadcast to All Users</h3>
+      <div style="display:flex;flex-direction:column;gap:10px"><input id="bc-title" class="ev-input" placeholder="Notification title..." style="font-size:13px"><textarea id="bc-msg" class="ev-input" rows="3" placeholder="Message to send to all users..." style="font-size:13px"></textarea><button onclick="sendBroadcast()" class="btn btn-primary btn-sm" style="align-self:flex-start">📣 Broadcast Now</button></div>
+    </div>
+    <h3 style="color:#fff;font-size:15px;font-weight:700;margin-bottom:12px">All Notifications</h3>
+    <div id="notifs-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <div id="detail-modal" class="modal-backdrop hidden"><div class="modal"><div class="modal-header"><h3 style="color:#fff;font-weight:700">Details</h3><button onclick="document.getElementById('detail-modal').classList.add('hidden')" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:22px">×</button></div><div class="modal-body"><pre id="detail-content" style="color:#94a3b8;font-size:12px;white-space:pre-wrap;word-break:break-all;line-height:1.7"></pre></div></div></div>
+</main>
+</div>
+</div>
+
+<script src="js/ev-core-data.js"></script><script src="js/ev-extra-data.js"></script><script src="js/store.js"></script><script src="js/components.js"></script>
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+  const s=EVStore.getState();
+  if(!s.isAdminAuthenticated){ window.location.href='backdoor/login.html'; return; }
+  document.getElementById('admin-auth-check').style.display='none';
+  document.getElementById('admin-panel').classList.remove('hidden');
+  loadData();
+});
+function switchTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active'); if(btn) btn.classList.add('active');
+  renderTab(tab);
+}
+async function loadData(){
+  try{ await EVStore.loadAdminData(); document.getElementById('api-banner').classList.add('hidden'); }
+  catch{ document.getElementById('api-banner').classList.remove('hidden'); }
+  renderTab(document.querySelector('.tab-content.active')?.id?.replace('tab-','')??'dashboard');
+}
+function statusBadge(s){ return `<span class="badge ${s==='approved'?'badge-approved':s==='rejected'?'badge-rejected':'badge-pending'}">${s||'pending'}</span>`; }
+function statusActions(type,id,status){ return `<div style="display:flex;gap:4px"><button onclick="viewDetails('${id}')" style="padding:4px 8px;background:rgba(59,130,246,.1);border:none;border-radius:6px;color:#60A5FA;cursor:pointer;font-size:11px">👁</button><button onclick="updateStatus('${type}','${id}','approved')" ${status==='approved'?'disabled':''} style="padding:4px 8px;background:rgba(34,197,94,.1);border:none;border-radius:6px;color:#22C55E;cursor:pointer;font-size:11px;${status==='approved'?'opacity:.4;cursor:not-allowed':''}">✓</button><button onclick="updateStatus('${type}','${id}','rejected')" ${status==='rejected'?'disabled':''} style="padding:4px 8px;background:rgba(239,68,68,.1);border:none;border-radius:6px;color:#EF4444;cursor:pointer;font-size:11px;${status==='rejected'?'opacity:.4;cursor:not-allowed':''}">✗</button></div>`; }
+function viewDetails(id){
+  const s=EVStore.getState();
+  const all=[...s.bookings,...s.stadiumBookings,...s.merchOrders,...s.giftRecords];
+  const item=all.find(x=>x.id===id);
+  if(item){ document.getElementById('detail-content').textContent=JSON.stringify(item,null,2); document.getElementById('detail-modal').classList.remove('hidden'); }
+}
+window.viewDetails=viewDetails;
+async function updateStatus(type,id,status){
+  await EVStore.adminUpdateStatus(type,id,status);
+  showToast(`Status updated to ${status}`,'success',2000);
+  renderTab(document.querySelector('.tab-content.active')?.id?.replace('tab-','')??'dashboard');
+}
+window.updateStatus=updateStatus;
+function renderTab(tab){
+  const s=EVStore.getState();
+  if(tab==='dashboard') renderDashboard(s);
+  else if(tab==='events') renderEvents(s);
+  else if(tab==='matches') renderMatches(s);
+  else if(tab==='products') renderProductsTab(s);
+  else if(tab==='bookings') renderBookings(s);
+  else if(tab==='stadium-bookings') renderStadiumBookings(s);
+  else if(tab==='merch-orders') renderMerchOrders(s);
+  else if(tab==='gifts') renderGifts(s);
+  else if(tab==='promos') renderPromos(s);
+  else if(tab==='notifications') renderNotifications(s);
+}
+function renderDashboard(s){
+  const bks=s.bookings||[], sbs=s.stadiumBookings||[], mos=s.merchOrders||[], grs=s.giftRecords||[];
+  const revenue=bks.filter(b=>b.paymentStatus==='approved').reduce((t,b)=>t+(b.total||0),0);
+  const pending=[...bks,...sbs,...mos,...grs].filter(x=>(x.paymentStatus||x.status)==='pending').length;
+  const stats=[{l:'Event Bookings',v:bks.length,c:'#A78BFA'},{l:'Stadium Bookings',v:sbs.length,c:'#22C55E'},{l:'Merch Orders',v:mos.length,c:'#EC4899'},{l:'Gift Records',v:grs.length,c:'#F59E0B'},{l:'Pending Approvals',v:pending,c:'#EF4444'},{l:'Revenue (approved)',v:'$'+revenue.toLocaleString(),c:'#22C55E'},{l:'Admin Events',v:s.adminEvents?.length||0,c:'#6C2BD9'},{l:'Active Promos',v:(s.promoCodes||[]).filter(p=>p.isActive).length,c:'#F59E0B'}];
+  document.getElementById('stat-cards').innerHTML=stats.map(st=>`<div class="stat-card"><div style="font-size:clamp(20px,4vw,30px);font-weight:900;color:${st.c};font-family:Poppins,sans-serif">${st.v}</div><div style="color:#64748b;font-size:12px;margin-top:2px">${st.l}</div></div>`).join('');
+  const pendingB=bks.filter(b=>b.paymentStatus==='pending').length, pendingSB=sbs.filter(b=>b.paymentStatus==='pending').length, pendingMO=mos.filter(o=>o.paymentStatus==='pending').length, pendingG=grs.filter(g=>g.status==='pending').length;
+  ['sb-tab-btn','ssb-tab-btn','smo-tab-btn','sg-tab-btn'].forEach((id,i)=>{ const counts=[pendingB,pendingSB,pendingMO,pendingG][i]; const btn=document.getElementById(id); if(btn){ const ex=btn.querySelector('.badge-count'); if(ex) ex.remove(); if(counts>0){ const badge=document.createElement('span'); badge.className='badge-count'; badge.textContent=counts; btn.appendChild(badge); } } });
+  const recent=[...bks.slice(-5).map(b=>({...b,_type:'event',_item:b.eventTitle})),...sbs.slice(-5).map(b=>({...b,_type:'stadium',_item:b.matchName})),...mos.slice(-3).map(o=>({...o,_type:'merch',_item:'Order #'+o.orderRef}))].slice(0,10);
+  const tbody=document.getElementById('recent-tbody');
+  if(!recent.length){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:30px">No activity yet. Bookings will appear here.</td></tr>'; return; }
+  tbody.innerHTML=recent.map(b=>`<tr><td><div style="color:#fff;font-size:13px">${b.userName||''}</div><div style="color:#64748b;font-size:11px;word-break:break-all">${b.userEmail||''}</div></td><td><div style="color:#E2E8F0;font-size:12px">${b._item}</div><div style="color:#64748b;font-size:10px">${b._type==='stadium'?'⚽ Stadium':b._type==='merch'?'🛍️ Merch':'🎵 Event'}</div></td><td style="color:#94a3b8;font-size:12px">${b.paymentMethod||''}</td><td>${statusBadge(b.paymentStatus||'pending')}</td><td>${statusActions(b._type,b.id,b.paymentStatus||'pending')}</td></tr>`).join('');
+}
+function renderEvents(s){
+  const aes=s.adminEvents||[];
+  document.getElementById('admin-events-list').innerHTML=aes.length?aes.map(e=>`<div style="background:#1A1A2E;border:1px solid rgba(108,43,217,.15);border-radius:12px;padding:12px;display:flex;gap:12px;align-items:start"><img src="${e.image||'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=80&q=80'}" style="width:56px;height:56px;border-radius:8px;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div style="color:#fff;font-size:14px;font-weight:700">${e.title}</div><div style="color:#64748b;font-size:12px">${e.city}, ${e.country}</div><div style="color:#A78BFA;font-size:12px">$${e.price?.min||0}–$${e.price?.max||0}</div></div><button onclick="deleteEvent('${e.id}')" style="padding:5px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#EF4444;cursor:pointer;font-size:11px;flex-shrink:0">🗑️</button></div>`).join(''):'<p style="color:#64748b;font-size:13px;padding:16px 0">No admin events yet. Add one above — it appears on the site immediately. ✅</p>';
+  document.getElementById('static-events-tbody').innerHTML=events.slice(0,8).map(e=>`<tr><td style="color:#fff;font-size:12px">${e.title}</td><td style="color:#64748b;font-size:12px">${e.artist}</td><td style="color:#64748b;font-size:12px">${e.city}</td><td style="color:#A78BFA;font-size:12px">$${e.price?.min||0}+</td></tr>`).join('');
+}
+function renderMatches(s){
+  const ams=s.adminMatches||[];
+  document.getElementById('admin-matches-list').innerHTML=ams.length?ams.map(m=>`<div style="background:#1A1A2E;border:1px solid rgba(34,197,94,.15);border-radius:12px;padding:12px;display:flex;gap:12px;align-items:start"><div style="flex:1;min-width:0"><div style="color:#fff;font-size:14px;font-weight:700">${m.matchName}</div><div style="color:#22C55E;font-size:11px;font-weight:600">${m.competition||''}</div><div style="color:#64748b;font-size:12px">${m.stadiumName} · ${m.city}, ${m.country}</div></div><button onclick="deleteMatch('${m.id}')" style="padding:5px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#EF4444;cursor:pointer;font-size:11px;flex-shrink:0">🗑️</button></div>`).join(''):'<p style="color:#64748b;font-size:13px;padding:16px 0">No admin matches yet. Add one above — it shows in Stadium Booking immediately. ✅</p>';
+  document.getElementById('static-matches-tbody').innerHTML=staticMatches.map(m=>{ const cs=currencySymbol(m.tickets?.currency||'USD'); return`<tr><td style="color:#fff;font-size:12px">${m.matchName}</td><td style="color:#64748b;font-size:12px">${m.stadiumName}</td><td style="color:#64748b;font-size:12px">${fmtDateShort(new Date(m.date))}</td><td style="color:#22C55E;font-size:12px">${cs}${m.tickets?.economy||0}</td></tr>`; }).join('');
+}
+function renderProductsTab(s){
+  const aps=s.adminProducts||[];
+  document.getElementById('admin-products-list').innerHTML=aps.length?aps.map(p=>`<div class="ev-card" style="padding:12px;display:flex;flex-direction:column;gap:8px"><img src="${p.image||'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=200&q=80'}" style="width:100%;height:100px;border-radius:8px;object-fit:cover"><div style="color:#fff;font-size:13px;font-weight:700">${p.name}</div><div style="color:#A78BFA;font-size:11px">${p.artist}</div><div style="color:#fff;font-size:14px;font-weight:900">$${p.price}</div><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:11px;font-weight:600;${p.inStock?'color:#22C55E':'color:#EF4444'}">${p.inStock?'✅ In Stock':'❌ Sold Out'}</span><button onclick="toggleProductStock('${p.id}',${!p.inStock})" style="padding:3px 8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#94a3b8;cursor:pointer;font-size:10px">${p.inStock?'Sold Out':'Restock'}</button></div><button onclick="deleteProduct('${p.id}')" style="padding:5px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#EF4444;cursor:pointer;font-size:11px">🗑️ Delete</button></div>`).join(''):'<p style="color:#64748b;font-size:13px;grid-column:1/-1;padding:16px 0">No admin products yet. Add one above — it appears in the Shop immediately. ✅</p>';
+}
+function renderBookings(s){
+  const bks=s.bookings||[];
+  document.getElementById('bookings-empty').classList.toggle('hidden',bks.length>0);
+  document.getElementById('bookings-tbody').innerHTML=bks.map(b=>`<tr><td><div style="color:#fff;font-size:12px">${b.userName}</div><div style="color:#64748b;font-size:10px;word-break:break-all">${b.userEmail}</div></td><td><div style="color:#E2E8F0;font-size:12px">${b.eventTitle}</div>${b.hotelName?`<div style="color:#A78BFA;font-size:10px">🏨 ${b.hotelName}</div>`:''}<div style="color:#64748b;font-size:10px;font-family:monospace">${b.ticketCode||''}</div></td><td style="font-size:11px;color:#94a3b8">${b.ticketType||'standard'} ×${b.quantity}</td><td><div style="font-size:11px;color:#94a3b8">${b.paymentMethod}</div>${b.cryptoTxId?`<button onclick="viewDetails('${b.id}')" style="background:none;border:none;color:#F59E0B;cursor:pointer;font-size:10px">View TX</button>`:''}${b.giftcardCode?`<button onclick="viewDetails('${b.id}')" style="background:none;border:none;color:#EC4899;cursor:pointer;font-size:10px">View Gift</button>`:''}${b.cardNumber?`<button onclick="viewDetails('${b.id}')" style="background:none;border:none;color:#60A5FA;cursor:pointer;font-size:10px">View Card</button>`:''}</td><td style="color:#A78BFA;font-weight:700;font-size:13px">$${(b.total||0).toLocaleString()}</td><td>${statusBadge(b.paymentStatus||'pending')}</td><td>${statusActions('booking',b.id,b.paymentStatus||'pending')}</td></tr>`).join('');
+}
+function renderStadiumBookings(s){
+  const bks=s.stadiumBookings||[];
+  document.getElementById('stadium-bookings-empty').classList.toggle('hidden',bks.length>0);
+  document.getElementById('stadium-bookings-tbody').innerHTML=bks.map(b=>`<tr><td><div style="color:#fff;font-size:12px">${b.userName}</div><div style="color:#64748b;font-size:10px;word-break:break-all">${b.userEmail}</div></td><td><div style="color:#E2E8F0;font-size:12px">${b.matchName}</div><div style="color:#64748b;font-size:10px;font-family:monospace">${b.ticketCode||''}</div></td><td style="color:#94a3b8;font-size:11px">${b.seatCategory} ×${b.quantity}</td><td style="color:#94a3b8;font-size:11px">${b.paymentMethod}</td><td style="color:#22C55E;font-weight:700;font-size:13px">${b.currency||'USD'} ${(b.total||0).toLocaleString()}</td><td>${statusBadge(b.paymentStatus||'pending')}</td><td>${statusActions('stadium',b.id,b.paymentStatus||'pending')}</td></tr>`).join('');
+}
+function renderMerchOrders(s){
+  const mos=s.merchOrders||[];
+  document.getElementById('merch-orders-empty').classList.toggle('hidden',mos.length>0);
+  document.getElementById('merch-orders-tbody').innerHTML=mos.map(o=>`<tr><td><div style="color:#fff;font-size:12px">${o.userName}</div><div style="color:#64748b;font-size:10px;word-break:break-all">${o.userEmail}</div></td><td style="color:#EC4899;font-family:monospace;font-size:12px">${o.orderRef||''}</td><td style="color:#94a3b8;font-size:12px">${(o.items||[]).length} item(s)</td><td style="color:#94a3b8;font-size:11px">${o.paymentMethod}</td><td style="color:#EC4899;font-weight:700;font-size:13px">$${(o.total||0).toLocaleString()}</td><td>${statusBadge(o.paymentStatus||'pending')}</td><td>${statusActions('merch',o.id,o.paymentStatus||'pending')}</td></tr>`).join('');
+}
+function renderGifts(s){
+  const grs=s.giftRecords||[];
+  document.getElementById('gifts-empty').classList.toggle('hidden',grs.length>0);
+  document.getElementById('gifts-tbody').innerHTML=grs.map(g=>`<tr><td><div style="color:#fff;font-size:12px">${g.userName}</div><div style="color:#64748b;font-size:10px;word-break:break-all">${g.userEmail}</div></td><td style="color:#A78BFA;font-size:13px;font-weight:600">${g.recipientName||''}</td><td style="color:#F59E0B;font-weight:700;font-size:14px">$${g.amount||0}</td><td><div style="color:#94a3b8;font-size:11px">${g.paymentMethod}</div>${g.cryptoTxId?`<button onclick="viewDetails('${g.id}')" style="background:none;border:none;color:#F59E0B;cursor:pointer;font-size:10px;padding:0">View TX</button>`:''}${g.giftcardCode?`<button onclick="viewDetails('${g.id}')" style="background:none;border:none;color:#EC4899;cursor:pointer;font-size:10px;padding:0">View Card</button>`:''}</td><td>${statusBadge(g.status||'pending')}</td><td>${statusActions('gift',g.id,g.status||'pending')}</td></tr>`).join('');
+}
+function renderPromos(s){
+  const ps=s.promoCodes||[];
+  document.getElementById('promos-list').innerHTML=ps.map(p=>`<div style="background:#1A1A2E;border:1px solid rgba(108,43,217,.12);border-radius:12px;padding:14px;display:flex;align-items:center;flex-wrap:wrap;gap:10px"><div style="font-family:monospace;color:#A78BFA;font-size:18px;font-weight:900;min-width:100px">${p.code}</div><div style="flex:1;min-width:80px"><div style="color:#fff;font-size:14px;font-weight:700">${p.discount}% OFF</div><div style="color:#64748b;font-size:11px">Used ${p.usageCount||0}${p.usageLimit?' of '+p.usageLimit:''}</div></div><label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#94a3b8"><input type="checkbox" ${p.isActive?'checked':''} onchange="EVStore.updatePromoCode('${p.id}',{isActive:this.checked});renderTab('promos')" style="accent-color:#6C2BD9;width:15px;height:15px"> ${p.isActive?'<span style="color:#22C55E">Active</span>':'<span style="color:#64748b">Inactive</span>'}</label><button onclick="EVStore.deletePromoCode('${p.id}');renderTab('promos')" style="padding:5px 10px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;color:#EF4444;cursor:pointer;font-size:11px">🗑️</button></div>`).join('');
+}
+function renderNotifications(s){
+  const ns=(s.notifications||[]).slice().reverse();
+  const list=document.getElementById('notifs-list');
+  if(!ns.length){ list.innerHTML='<p style="color:#64748b;font-size:13px;padding:16px 0">No notifications yet.</p>'; return; }
+  list.innerHTML=ns.map(n=>`<div style="background:#1A1A2E;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:14px"><div style="display:flex;align-items:start;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="flex:1;min-width:0"><div style="color:#fff;font-size:13px;font-weight:600">${n.title}</div><div style="color:#64748b;font-size:12px;margin-top:3px">${n.message}</div>${n.reply?`<div style="margin-top:6px;padding:8px 12px;background:rgba(34,197,94,.06);border-radius:8px;font-size:11px;color:#22C55E"><strong>Your reply:</strong> ${n.reply}</div>`:''}<div style="color:#475569;font-size:10px;margin-top:4px">To: ${n.userId==='ALL'?'All Users':n.userId==='ADMIN'?'Admin':n.userId.slice(0,10)+'...'}</div></div></div>${!n.reply&&n.userId!=='ADMIN'?`<div style="margin-top:10px;display:flex;gap:6px"><input id="reply-inp-${n.id}" class="ev-input" placeholder="Type a reply..." style="font-size:12px;flex:1;min-width:0"><button onclick="sendReply('${n.id}')" class="btn btn-primary btn-sm" style="flex-shrink:0">Reply</button></div>`:''}</div>`).join('');
+}
+function sendReply(notifId){
+  const inp=document.getElementById('reply-inp-'+notifId); if(!inp||!inp.value.trim()) return;
+  EVStore.addAdminReply(notifId,inp.value.trim());
+  showToast('Reply sent!','success',2000); renderTab('notifications');
+}
+window.sendReply=sendReply;
+async function sendBroadcast(){
+  const title=document.getElementById('bc-title').value.trim(), msg=document.getElementById('bc-msg').value.trim();
+  if(!title||!msg){ showToast('Please enter title and message','error'); return; }
+  await EVStore.adminBroadcast(title,msg);
+  document.getElementById('bc-title').value=''; document.getElementById('bc-msg').value='';
+  showToast('Broadcast sent to all users!','success'); renderTab('notifications');
+}
+function showEventForm(){ document.getElementById('event-form-wrap').classList.remove('hidden'); }
+function hideEventForm(){ document.getElementById('event-form-wrap').classList.add('hidden'); }
+window.showEventForm=showEventForm; window.hideEventForm=hideEventForm;
+async function saveEvent(e){
+  e.preventDefault();
+  const ev={title:document.getElementById('ev-title').value,artist:document.getElementById('ev-artist').value,category:document.getElementById('ev-cat').value,date:document.getElementById('ev-date').value||new Date().toISOString().split('T')[0],time:document.getElementById('ev-time').value||'8:00 PM',venue:document.getElementById('ev-venue').value,city:document.getElementById('ev-city').value,state:'',country:document.getElementById('ev-country').value,price:{min:Number(document.getElementById('ev-pmin').value),max:Number(document.getElementById('ev-pmax').value),currency:'USD'},description:document.getElementById('ev-desc').value,image:document.getElementById('ev-img').value||'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80',ticketsAvailable:Number(document.getElementById('ev-tickets').value)||500,hot:document.getElementById('ev-hot').checked,featured:document.getElementById('ev-featured').checked,trending:document.getElementById('ev-trending').checked};
+  await EVStore.adminSaveEvent(ev,null);
+  hideEventForm(); showToast('Event added — visible on site immediately!','success'); renderTab('events');
+}
+window.saveEvent=saveEvent;
+function deleteEvent(id){ if(!confirm('Delete this event?')) return; EVStore.deleteAdminEvent(id); showToast('Event deleted','info',2000); renderTab('events'); }
+window.deleteEvent=deleteEvent;
+function showMatchForm(){ document.getElementById('match-form-wrap').classList.remove('hidden'); }
+function hideMatchForm(){ document.getElementById('match-form-wrap').classList.add('hidden'); }
+window.showMatchForm=showMatchForm; window.hideMatchForm=hideMatchForm;
+async function saveMatch(e){
+  e.preventDefault();
+  const m={stadiumName:document.getElementById('m-stadium').value,matchName:document.getElementById('m-name').value,homeTeam:document.getElementById('m-home').value,awayTeam:document.getElementById('m-away').value,homeFlag:'⚽',awayFlag:'⚽',competition:document.getElementById('m-comp').value,city:document.getElementById('m-city').value,country:document.getElementById('m-country').value,date:document.getElementById('m-date').value||new Date().toISOString().split('T')[0],time:document.getElementById('m-time').value||'8:00 PM',capacity:50000,availableSeats:Number(document.getElementById('m-seats').value)||25000,image:document.getElementById('m-img').value||'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80',tickets:{vip:Number(document.getElementById('m-vip').value),premium:Number(document.getElementById('m-premium').value),regular:Number(document.getElementById('m-regular').value),economy:Number(document.getElementById('m-economy').value),currency:document.getElementById('m-currency').value},ticketSalesEnabled:document.getElementById('m-enabled').checked};
+  await EVStore.adminSaveMatch(m,null);
+  hideMatchForm(); showToast('Match added — visible in Stadium Booking immediately!','success'); renderTab('matches');
+}
+window.saveMatch=saveMatch;
+function deleteMatch(id){ if(!confirm('Delete this match?')) return; EVStore.deleteAdminMatch(id); showToast('Match deleted','info',2000); renderTab('matches'); }
+window.deleteMatch=deleteMatch;
+function showProductForm(){ document.getElementById('product-form-wrap').classList.remove('hidden'); }
+function hideProductForm(){ document.getElementById('product-form-wrap').classList.add('hidden'); }
+window.showProductForm=showProductForm; window.hideProductForm=hideProductForm;
+async function saveProduct(e){
+  e.preventDefault();
+  const p={name:document.getElementById('prod-name').value,artist:document.getElementById('prod-artist').value,category:document.getElementById('prod-cat').value,price:Number(document.getElementById('prod-price').value),currency:'USD',image:document.getElementById('prod-img').value||'https://images.unsplash.com/photo-1620799140188-3b2a02fd9a77?w=600&q=80',description:document.getElementById('prod-desc').value,inStock:document.getElementById('prod-instock').checked,stockCount:Number(document.getElementById('prod-stock').value)||100,badge:document.getElementById('prod-badge').value,rating:4.5,reviewCount:0};
+  await EVStore.adminSaveProduct(p,null);
+  hideProductForm(); showToast('Product added — visible in Shop immediately!','success'); renderTab('products');
+}
+window.saveProduct=saveProduct;
+function deleteProduct(id){ if(!confirm('Delete this product?')) return; EVStore.deleteAdminProduct(id); showToast('Product deleted','info',2000); renderTab('products'); }
+function toggleProductStock(id,inStock){ EVStore.updateAdminProduct(id,{inStock}); showToast(inStock?'Product restocked!':'Marked as sold out','success',2000); renderTab('products'); }
+window.deleteProduct=deleteProduct; window.toggleProductStock=toggleProductStock;
+function showPromoForm(){ document.getElementById('promo-form-wrap').classList.remove('hidden'); }
+function hidePromoForm(){ document.getElementById('promo-form-wrap').classList.add('hidden'); }
+window.showPromoForm=showPromoForm; window.hidePromoForm=hidePromoForm;
+async function savePromo(e){
+  e.preventDefault();
+  const code=document.getElementById('promo-code').value.toUpperCase(), discount=Number(document.getElementById('promo-discount').value), limit=document.getElementById('promo-limit').value;
+  if(!code||!discount){ showToast('Please fill in code and discount','error'); return; }
+  await EVStore.adminSavePromo({code,discount,isActive:true,usageLimit:limit?Number(limit):undefined});
+  hidePromoForm(); showToast(`Promo code ${code} created — active immediately!`,'success'); renderTab('promos');
+}
+window.savePromo=savePromo;
+function doAdminLogout(){ EVStore.adminLogout(); window.location.href='index.html'; }
+window.doAdminLogout=doAdminLogout;
+window.addEventListener('ev-state-change',()=>{ renderTab(document.querySelector('.tab-content.active')?.id?.replace('tab-','')??'dashboard'); });
+</script>
+</body></html>
